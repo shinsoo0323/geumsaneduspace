@@ -1,0 +1,2931 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="cupcake">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 하늘 꿈, 별빛 축제 - 천체망원경 관측 가이드</title>
+
+  <!-- Pretendard Web Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Tailwind CSS & DaisyUI (cupcake theme) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti Library for Festival Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    }
+    
+    /* Ensure uniform base background across the page */
+    body {
+      background-color: hsl(var(--b1)) !important;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+
+    .sky-container {
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+    .sky-container:active {
+      cursor: grabbing;
+    }
+
+    /* Red Light Dark Adaptation Mode (야간 적색등 모드) */
+    body.night-vision-mode {
+      background-color: #050102 !important;
+      color: #ef4444 !important;
+    }
+    body.night-vision-mode header,
+    body.night-vision-mode main,
+    body.night-vision-mode footer,
+    body.night-vision-mode .navbar,
+    body.night-vision-mode .card,
+    body.night-vision-mode .bg-base-100,
+    body.night-vision-mode .bg-base-200,
+    body.night-vision-mode .modal-box {
+      background-color: #120406 !important;
+      border-color: #7f1d1d !important;
+      color: #f87171 !important;
+    }
+    body.night-vision-mode .text-slate-900,
+    body.night-vision-mode .text-slate-800,
+    body.night-vision-mode .text-slate-700,
+    body.night-vision-mode .text-slate-600,
+    body.night-vision-mode .text-slate-500 {
+      color: #fca5a5 !important;
+    }
+    body.night-vision-mode .btn-primary {
+      background-color: #991b1b !important;
+      border-color: #ef4444 !important;
+      color: #fee2e2 !important;
+    }
+    body.night-vision-mode .btn-outline {
+      border-color: #991b1b !important;
+      color: #f87171 !important;
+    }
+    body.night-vision-mode img {
+      filter: grayscale(100%) sepia(100%) hue-rotate(310deg) saturate(600%) brightness(0.75) !important;
+    }
+    body.night-vision-mode canvas {
+      filter: brightness(0.85) contrast(1.2);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-base-100 text-slate-800 flex flex-col transition-colors duration-300">
+
+  <!-- Header Navigation -->
+  <header class="navbar bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-40 px-3 md:px-6">
+    <div class="flex-1 flex items-center gap-2 md:gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary text-xl font-bold shadow-inner">
+        ✨
+      </div>
+      <div>
+        <h1 class="text-base md:text-lg font-black tracking-tight text-primary flex items-center gap-1.5">
+          2026 하늘 꿈, 별빛 축제
+          <span class="badge badge-accent badge-xs md:badge-sm font-semibold">관측 가이드</span>
+        </h1>
+        <p class="text-[11px] text-slate-500 hidden sm:block">실시간 위치·시간 밤하늘 탐구 & 천체망원경 광학 교실</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons in Navigation -->
+    <div class="flex-none flex items-center gap-1.5 md:gap-2">
+      <!-- 1. Telescope Principles & Optical Types Guide Button -->
+      <button onclick="document.getElementById('telescope_types_modal').showModal()" id="btn-telescope-guide" class="btn btn-sm btn-outline btn-primary gap-1 font-bold" title="망원경의 3대 광학계 원리와 구조를 봅니다">
+        <i data-lucide="telescope" class="w-4 h-4 text-primary"></i>
+        <span class="hidden md:inline">망원경 구조 & 광학계</span>
+      </button>
+
+      <!-- 2. Optical Magnification Calculator Button -->
+      <button onclick="document.getElementById('telescope_calc_modal').showModal()" id="btn-telescope-calc" class="btn btn-sm btn-outline btn-accent gap-1 font-bold text-slate-800" title="구경·초점거리·접안렌즈·바로우 렌즈 원리와 실시간 배율 계산기">
+        <i data-lucide="calculator" class="w-4 h-4 text-emerald-600"></i>
+        <span class="hidden md:inline">배율 & 광학 계산기</span>
+      </button>
+
+      <!-- 3. Red Light Dark Adaptation Button -->
+      <button onclick="toggleNightVisionMode()" id="night-vision-btn" class="btn btn-sm btn-outline border-red-500 text-red-600 hover:bg-red-600 hover:text-white gap-1 font-bold transition-all" title="야간 관측 시 눈의 암순응을 보호하는 붉은색 조명 모드로 전환합니다">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+        <span class="hidden sm:inline">적색등 모드</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 space-y-4 bg-base-100">
+    
+    <!-- Real-time Location and Time Configuration Bar -->
+    <section class="card bg-base-100 shadow-sm border border-base-300 p-3.5 md:p-4 rounded-3xl">
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        
+        <!-- Location Picker & GPS -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 rounded-2xl border border-primary/20 text-xs font-semibold text-primary">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span id="loc-display">관측지: 충청남도 금산군 (축제 행사장)</span>
+          </div>
+          <button onclick="getUserGPSLocation()" class="btn btn-xs btn-outline btn-primary gap-1 font-bold" title="현재 내 GPS 위치 좌표 가져오기">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+            GPS 내 위치
+          </button>
+          <select id="quick-location-select" onchange="changeQuickLocation(this.value)" class="select select-xs select-bordered font-semibold">
+            <option value="geumsan" selected>충남 금산군 (별빛 축제 행사장)</option>
+            <option value="seoul">서울특별시 (북위 37.5°)</option>
+            <option value="daejeon">대전광역시 (북위 36.3°)</option>
+            <option value="busan">부산광역시 (북위 35.1°)</option>
+            <option value="jeju">제주도 서귀포 (북위 33.2°)</option>
+          </select>
+        </div>
+
+        <!-- Date & Time Input with Instant Step Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <div class="join items-center shadow-sm">
+            <span class="btn btn-xs join-item pointer-events-none bg-base-200 text-[11px] font-bold">관측 시각</span>
+            <input type="datetime-local" id="obs-time-input" class="input input-xs input-bordered join-item font-mono font-bold text-xs" />
+            <button onclick="applyManualDateTime()" class="btn btn-xs btn-primary join-item font-bold px-2.5">적용</button>
+          </div>
+
+          <!-- Quick Time Shift Step Buttons -->
+          <div class="join">
+            <button onclick="stepTime(-60)" class="btn btn-xs join-item" title="1시간 전">-1h</button>
+            <button onclick="stepTime(60)" class="btn btn-xs join-item" title="1시간 뒤">+1h</button>
+            <button onclick="stepTime(1440)" class="btn btn-xs join-item" title="하루 뒤">+1일</button>
+            <button onclick="setToNowTime()" class="btn btn-xs join-item btn-ghost text-xs" title="현재 시각으로 설정">지금</button>
+          </div>
+
+          <!-- Time Flow Animation Toggle -->
+          <button id="btn-play-flow" onclick="toggleTimeFlow()" class="btn btn-xs btn-outline btn-accent gap-1 font-bold">
+            <i data-lucide="play" class="w-3 h-3"></i>
+            <span id="play-flow-label">시간 흐름</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Direction Tabs & Overlays Controls -->
+    <section class="flex flex-wrap items-center justify-between gap-2">
+      <!-- Direction Tabs -->
+      <div class="join bg-base-100 p-1 rounded-2xl shadow-sm border border-base-300">
+        <button onclick="setViewDirection('all')" id="tab-all" class="btn btn-xs sm:btn-sm join-item btn-primary font-bold">
+          전체 하늘 (360° 돔)
+        </button>
+        <button onclick="setViewDirection('E')" id="tab-E" class="btn btn-xs sm:btn-sm join-item btn-ghost font-bold">
+          동쪽 (East)
+        </button>
+        <button onclick="setViewDirection('S')" id="tab-S" class="btn btn-xs sm:btn-sm join-item btn-ghost font-bold">
+          남쪽 (South) - 남중 관측
+        </button>
+        <button onclick="setViewDirection('W')" id="tab-W" class="btn btn-xs sm:btn-sm join-item btn-ghost font-bold">
+          서쪽 (West)
+        </button>
+        <button onclick="setViewDirection('N')" id="tab-N" class="btn btn-xs sm:btn-sm join-item btn-ghost font-bold">
+          북쪽 (North)
+        </button>
+      </div>
+
+      <!-- Quick Canvas Overlay Controls -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button onclick="toggleConstellationLines()" id="btn-const-lines" class="btn btn-xs btn-outline btn-neutral gap-1 font-semibold">
+          <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
+          별자리선 <span id="const-line-status" class="badge badge-xs badge-primary">ON</span>
+        </button>
+
+        <button onclick="toggleConstellationNames()" id="btn-const-names" class="btn btn-xs btn-outline btn-neutral gap-1 font-semibold">
+          <i data-lucide="type" class="w-3.5 h-3.5"></i>
+          별자리 이름 <span id="const-name-status" class="badge badge-xs badge-primary">ON</span>
+        </button>
+
+        <button onclick="toggleTelescopeReticle()" id="btn-reticle" class="btn btn-xs btn-outline btn-neutral gap-1 font-semibold">
+          <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i>
+          망원경 레티클
+        </button>
+
+        <!-- Canvas Zoom Controls -->
+        <div class="join shadow-sm">
+          <button onclick="zoomSky(1.2)" class="btn btn-xs join-item font-bold" title="확대">+</button>
+          <button onclick="zoomSky(0.8)" class="btn btn-xs join-item font-bold" title="축소">-</button>
+          <button onclick="resetSkyTransform()" class="btn btn-xs join-item font-semibold" title="확대/위치 초기화">리셋</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Canvas Wrapper with Celestial Interactive Viewport -->
+    <div class="relative w-full h-[520px] md:h-[620px] bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 sky-container" id="sky-wrapper">
+      <canvas id="sky-canvas" class="w-full h-full block"></canvas>
+
+      <!-- Viewport Floating Badges -->
+      <div class="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none z-10">
+        <div class="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/10 text-white flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="canvas-view-badge" class="font-bold text-xs tracking-wide">전체 하늘 (천구 전천 돔 투영)</span>
+        </div>
+        <div class="bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-xl text-[10px] text-slate-300">
+          마우스 휠: 확대/축소 | 좌우 드래그: 360° 회전 | 확대 시 위아래 드래그: 고도 탐색
+        </div>
+      </div>
+
+      <!-- Quick Interactive Jump Bar to Important Celestial Objects -->
+      <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 overflow-x-auto p-1.5 bg-black/60 backdrop-blur-md rounded-2xl border border-white/10 text-white z-10">
+        <div class="flex items-center gap-1 text-[11px] font-bold text-amber-300 flex-shrink-0 px-1">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 추천 천체 바로가기:
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto text-xs py-0.5">
+          <button onclick="focusCelestialTarget('moon')" class="btn btn-xs btn-outline border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-black">🌕 달</button>
+          <button onclick="focusCelestialTarget('saturn')" class="btn btn-xs btn-outline border-amber-400 text-amber-300 hover:bg-amber-400 hover:text-black">🪐 토성 & 고리</button>
+          <button onclick="focusCelestialTarget('jupiter')" class="btn btn-xs btn-outline border-orange-400 text-orange-300 hover:bg-orange-400 hover:text-black">♃ 목성 & 4대위성</button>
+          <button onclick="focusCelestialTarget('mars')" class="btn btn-xs btn-outline border-red-400 text-red-300 hover:bg-red-400 hover:text-black">♂ 화성 & 위성</button>
+          <button onclick="focusCelestialTarget('venus')" class="btn btn-xs btn-outline border-yellow-300 text-yellow-200 hover:bg-yellow-300 hover:text-black">♀ 금성</button>
+          <button onclick="focusCelestialTarget('mercury')" class="btn btn-xs btn-outline border-slate-300 text-slate-200 hover:bg-slate-300 hover:text-black">☿ 수성</button>
+          <button onclick="focusCelestialTarget('uranus')" class="btn btn-xs btn-outline border-teal-300 text-teal-200 hover:bg-teal-300 hover:text-black">♅ 천왕성</button>
+          <button onclick="focusCelestialTarget('neptune')" class="btn btn-xs btn-outline border-blue-400 text-blue-300 hover:bg-blue-400 hover:text-black">♆ 해왕성</button>
+          <button onclick="focusCelestialTarget('m31')" class="btn btn-xs btn-outline border-indigo-300 text-indigo-200 hover:bg-indigo-300 hover:text-black">🌌 안드로메다 은하</button>
+          <button onclick="focusCelestialTarget('leo_triplet')" class="btn btn-xs btn-outline border-violet-300 text-violet-200 hover:bg-violet-300 hover:text-black">🌌 사자자리 삼중은하</button>
+          <button onclick="focusCelestialTarget('m42')" class="btn btn-xs btn-outline border-pink-400 text-pink-300 hover:bg-pink-400 hover:text-black">✨ 오리온 대성운</button>
+          <button onclick="focusCelestialTarget('m57')" class="btn btn-xs btn-outline border-emerald-300 text-emerald-200 hover:bg-emerald-300 hover:text-black">🍩 고리성운(M57)</button>
+          <button onclick="focusCelestialTarget('m45')" class="btn btn-xs btn-outline border-sky-300 text-sky-200 hover:bg-sky-300 hover:text-black">⭐ 플레이아데스</button>
+          <button onclick="focusCelestialTarget('m13')" class="btn btn-xs btn-outline border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-black">💎 헤라클레스 구상성단</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real-time Directional Observation Summary Section -->
+    <section class="card bg-base-100 shadow-sm border border-base-300 p-4 md:p-5 rounded-3xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-base-200 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold text-lg">🔭</span>
+          <div>
+            <h3 class="font-black text-slate-900 text-base flex items-center gap-2" id="summary-section-title">
+              지정 시각 밤하늘 관측 요약 안내
+            </h3>
+            <p class="text-xs text-slate-500" id="summary-date-label">선택한 날짜와 시각의 동·남·서·북 주요 관측 대상</p>
+          </div>
+        </div>
+        <div class="badge badge-primary font-bold text-xs" id="summary-season-badge">가을 밤하늘</div>
+      </div>
+
+      <!-- 4 Directions Summary Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- South (Priority: Meridian Highest Altitude) -->
+        <div class="bg-base-200/60 p-3 rounded-2xl border border-base-300 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="badge badge-sm badge-warning font-bold text-slate-900">남쪽 하늘 (South) [최우선]</span>
+            <span class="text-[10px] text-slate-500">자오선 최고 고도</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed" id="sum-south-desc">
+            대기 흔들림이 가장 적은 남중 자오선에서 토성의 카시니 간극과 신비한 고리, 달의 충돌구 세부를 가장 뚜렷하게 관측할 수 있습니다.
+          </p>
+        </div>
+
+        <!-- East (Priority: Rising celestial wonders) -->
+        <div class="bg-base-200/60 p-3 rounded-2xl border border-base-300 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="badge badge-sm badge-info font-bold text-white">동쪽 하늘 (East)</span>
+            <span class="text-[10px] text-slate-500">떠오르는 천체</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed" id="sum-east-desc">
+            황소자리의 눈부신 플레이아데스(M45) 성단과 태양계의 왕 목성이 갈릴레이 4대 위성과 함께 서서히 솟아오릅니다.
+          </p>
+        </div>
+
+        <!-- West -->
+        <div class="bg-base-200/60 p-3 rounded-2xl border border-base-300 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="badge badge-sm badge-error font-bold text-white">서쪽 하늘 (West)</span>
+            <span class="text-[10px] text-slate-500">지평선으로 지는 천체</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed" id="sum-west-desc">
+            여름철 대삼각형의 주역인 백조자리 데네브, 거문고자리 베가, 독수리자리 알타이르가 서쪽 지평선 너머로 서서히 기울어집니다.
+          </p>
+        </div>
+
+        <!-- North -->
+        <div class="bg-base-200/60 p-3 rounded-2xl border border-base-300 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="badge badge-sm badge-neutral font-bold text-white">북쪽 하늘 (North)</span>
+            <span class="text-[10px] text-slate-500">사계절 주극성</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed" id="sum-north-desc">
+            W자 모양의 카시오페이아자리와 안드로메다자리(M31 은하)가 북극성을 중심으로 북천 높은 곳을 장엄하게 회전합니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 Dynamic Featured Observation Targets Container -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4" id="highlight-cards-container">
+      <!-- Card 1: South/Culminating Target -->
+      <div class="card bg-base-100 shadow-sm border border-base-300 overflow-hidden hover:shadow-xl transition-shadow rounded-3xl flex flex-col justify-between" id="card1-wrapper">
+        <div>
+          <div class="relative h-44 w-full bg-slate-950 overflow-hidden flex items-center justify-center p-2">
+            <img id="card1-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Saturn_during_Equinox.jpg?width=600" alt="토성 실제 사진" class="w-full h-full object-contain transition-transform hover:scale-105 duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x350/0f172a/f8fafc?text=Saturn+Rings';">
+            <span class="absolute bottom-2 left-2 badge badge-warning text-xs text-slate-900 bg-amber-300/90 border-none font-bold" id="card1-badge">남쪽 자오선 남중 (1순위)</span>
+          </div>
+          <div class="p-4 space-y-2">
+            <h4 class="font-black text-slate-900 text-base" id="card1-title">토성의 신비한 얼음 고리와 15년 주기</h4>
+            <p class="text-xs text-slate-600 leading-relaxed" id="card1-desc">
+              99% 순수 얼음 알갱이로 구성된 환상적인 고리! 2025~2026년 고리가 지구 시선 방향과 일치하여 얇은 실선처럼 보이는 15년 주기 희귀 현상을 만나보세요.
+            </p>
+          </div>
+        </div>
+        <div class="p-4 pt-0">
+          <button id="card1-btn" onclick="focusCelestialTarget('saturn')" class="btn btn-sm btn-outline btn-warning text-slate-800 w-full gap-1 font-bold">
+            <i data-lucide="disc" class="w-4 h-4 text-amber-600"></i> <span id="card1-btn-text">토성 고리 & 위성 탐구</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2: South High-Altitude Moon / Deep Sky -->
+      <div class="card bg-base-100 shadow-sm border border-base-300 overflow-hidden hover:shadow-xl transition-shadow rounded-3xl flex flex-col justify-between" id="card2-wrapper">
+        <div>
+          <div class="relative h-44 w-full bg-slate-950 overflow-hidden flex items-center justify-center p-2">
+            <img id="card2-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/FullMoon2010.jpg" alt="달 실제 사진" class="w-full h-full object-contain transition-transform hover:scale-105 duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x350/0f172a/f8fafc?text=Moon+Observation';">
+            <span class="absolute bottom-2 left-2 badge badge-primary text-xs text-white border-none font-bold" id="card2-badge">남쪽 최고 고도 관측</span>
+          </div>
+          <div class="p-4 space-y-2">
+            <h4 class="font-black text-slate-900 text-base" id="card2-title">신비한 달의 바다와 충돌구 탐구</h4>
+            <p class="text-xs text-slate-600 leading-relaxed" id="card2-desc">
+              어둡고 매끄러운 현무암 용암 바다와 밝고 험준한 사장석 고지대! 망원경으로 명암 경계선 아펜니노 산맥의 입체 그림자를 만나보세요.
+            </p>
+          </div>
+        </div>
+        <div class="p-4 pt-0">
+          <button id="card2-btn" onclick="openMoonDetailModal()" class="btn btn-sm btn-primary w-full gap-1 font-bold">
+            <i data-lucide="moon" class="w-4 h-4"></i> <span id="card2-btn-text">달 표면 정밀 탐구관 열기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3: East Rising Giant Target -->
+      <div class="card bg-base-100 shadow-sm border border-base-300 overflow-hidden hover:shadow-xl transition-shadow rounded-3xl flex flex-col justify-between" id="card3-wrapper">
+        <div>
+          <div class="relative h-44 w-full bg-slate-950 overflow-hidden flex items-center justify-center p-2">
+            <img id="card3-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Jupiter_and_its_shrunken_Great_Red_Spot.jpg?width=600" alt="목성 실제 사진" class="w-full h-full object-contain transition-transform hover:scale-105 duration-300" onerror="this.onerror=null; this.src='https://placehold.co/600x350/0f172a/f8fafc?text=Jupiter+Moons';">
+            <span class="absolute bottom-2 left-2 badge badge-accent text-xs text-slate-900 font-bold border-none" id="card3-badge">동쪽 상승 (새벽의 왕)</span>
+          </div>
+          <div class="p-4 space-y-2">
+            <h4 class="font-black text-slate-900 text-base" id="card3-title">목성의 거대한 대적점과 갈릴레이 4대 위성</h4>
+            <p class="text-xs text-slate-600 leading-relaxed" id="card3-desc">
+              지구가 통째로 들어가는 거대한 폭풍 대적점과 소형 망원경으로도 나란히 관측되는 이오, 유로파, 가니메데, 칼리스토를 만나보세요.
+            </p>
+          </div>
+        </div>
+        <div class="p-4 pt-0">
+          <button id="card3-btn" onclick="focusCelestialTarget('jupiter')" class="btn btn-sm btn-outline btn-accent text-slate-800 w-full gap-1 font-bold">
+            <i data-lucide="sparkle" class="w-4 h-4 text-emerald-600"></i> <span id="card3-btn-text">목성 줄무늬 & 위성 탐구</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: Telescope Principles & Optical Types Guide -->
+  <dialog id="telescope_types_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-5xl bg-base-100 rounded-3xl p-0 overflow-hidden border border-primary/30 shadow-2xl">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 text-white flex items-center justify-between border-b border-indigo-800/40">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center text-xl text-primary-content">
+            <i data-lucide="telescope" class="w-6 h-6 text-indigo-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-primary badge-sm font-bold text-xs">망원경 광학 교실</span>
+              <span class="text-xs text-slate-300">빛의 진행 경로(광선 추적) & 실물 구조</span>
+            </div>
+            <h3 class="text-xl font-black text-amber-200">천체망원경 3대 광학계(굴절 · 반사 · 복합) 가로 비교 탐구</h3>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost text-slate-300 hover:text-white">✕</button>
+        </form>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 md:p-6 max-h-[82vh] overflow-y-auto space-y-6">
+        
+        <!-- Top Principle Banner -->
+        <div class="bg-indigo-50/80 rounded-2xl p-4 border border-indigo-200 flex flex-col md:flex-row gap-4 items-center">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-200 text-indigo-800 flex-shrink-0 flex items-center justify-center text-2xl font-black">
+            🔭
+          </div>
+          <div class="space-y-1 text-xs text-slate-700 leading-relaxed flex-1">
+            <h4 class="font-bold text-slate-900 text-sm">
+              천체망원경의 근본 목적: "확대"보다 더 중요한 것은 "빛을 모으는 것(집광력)"
+            </h4>
+            <p>
+              인간의 동공(약 7mm)으로는 희미한 우주의 빛을 극히 일부만 받아들입니다. 천체망원경은 <strong>대구경 대물렌즈나 오목반사경</strong>으로 사람 눈의 수백~수천 배에 달하는 빛을 한곳으로 모아(실상 형성), 그 상을 <strong>접안렌즈(돋보기)</strong>로 확대하여 관측하는 정밀 광학 기기입니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- Horizontal Cards Container (All 3 Types Displayed Directly) -->
+        <div class="space-y-6">
+          
+          <!-- TYPE 1: Refractor (굴절망원경 가로형 카드) -->
+          <div id="tele-card-refractor" class="tele-type-card bg-base-200/50 rounded-3xl p-5 md:p-6 border border-base-300 shadow-sm flex flex-col lg:flex-row gap-6 items-stretch hover:border-primary/50 transition-colors">
+            <!-- Left Column: Visual Media (Ray Diagram & Enlarged Real Photo) -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="badge badge-primary font-bold text-xs">굴절망원경 (Refractor)</span>
+                <span class="text-[11px] font-mono text-slate-500">볼록렌즈 굴절 광학계</span>
+              </div>
+
+              <!-- Optical Ray Path Diagram (SVG) -->
+              <div class="bg-slate-950 rounded-2xl p-3 border border-slate-700">
+                <div class="text-[10px] text-amber-300 font-bold mb-1.5 flex items-center gap-1">
+                  <i data-lucide="git-commit" class="w-3 h-3"></i> 빛의 진행 경로 (Ray Diagram)
+                </div>
+                <svg viewBox="0 0 320 120" class="w-full h-auto">
+                  <rect x="30" y="25" width="230" height="70" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+                  <ellipse cx="40" cy="60" rx="7" ry="32" fill="#38bdf8" fill-opacity="0.7" stroke="#0284c7" stroke-width="2" />
+                  <text x="40" y="106" fill="#93c5fd" font-size="9" text-anchor="middle" font-weight="bold">대물렌즈</text>
+                  <line x1="5" y1="36" x2="35" y2="36" stroke="#fef08a" stroke-width="1.5" stroke-dasharray="3 2" />
+                  <line x1="5" y1="60" x2="35" y2="60" stroke="#fef08a" stroke-width="1.5" stroke-dasharray="3 2" />
+                  <line x1="5" y1="84" x2="35" y2="84" stroke="#fef08a" stroke-width="1.5" stroke-dasharray="3 2" />
+                  <line x1="40" y1="36" x2="230" y2="60" stroke="#facc15" stroke-width="1.5" />
+                  <line x1="40" y1="60" x2="230" y2="60" stroke="#facc15" stroke-width="1.5" />
+                  <line x1="40" y1="84" x2="230" y2="60" stroke="#facc15" stroke-width="1.5" />
+                  <circle cx="230" cy="60" r="3" fill="#ef4444" />
+                  <text x="230" y="52" fill="#fca5a5" font-size="8" text-anchor="middle">초점(F)</text>
+                  <rect x="250" y="44" width="28" height="32" rx="4" fill="#64748b" stroke="#94a3b8" />
+                  <ellipse cx="270" cy="60" rx="3" ry="12" fill="#38bdf8" />
+                  <text x="270" y="90" fill="#cbd5e1" font-size="8" text-anchor="middle">접안렌즈</text>
+                  <path d="M 295,60 Q 305,50 315,60 Q 305,70 295,60 Z" fill="none" stroke="#f8fafc" stroke-width="1.5" />
+                  <circle cx="305" cy="60" r="3" fill="#f8fafc" />
+                </svg>
+              </div>
+
+              <!-- Enlarged Real Photo Container with Uncropped Containment -->
+              <div class="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md h-64 sm:h-72 w-full flex items-center justify-center p-3">
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/8-inch-Telescope-Leah.jpg?width=800" alt="굴절망원경 실물 사진" class="w-full h-full object-contain drop-shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/800x600/1e1b4b/f8fafc?text=Alvan+Clark+8-inch+Refractor';">
+                <span class="absolute bottom-2 right-2 bg-black/80 px-2.5 py-1 rounded-xl text-[10px] text-amber-300 font-bold border border-white/10">
+                  Chabot 1883년 Alvan Clark 8인치 굴절 실물 전경
+                </span>
+              </div>
+            </div>
+
+            <!-- Right Column: Scientific Details & Pros/Cons -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-4">
+              <div>
+                <h5 class="font-black text-slate-900 text-lg">볼록 대물렌즈 굴절 광학계</h5>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  경통 앞쪽의 볼록 대물렌즈로 빛을 꺾어 모아 뒤쪽 초점에 상을 맺은 뒤, 후면 접안렌즈(돋보기)로 확대하여 관측합니다. 갈릴레오 갈릴레이가 최초로 밤하늘을 향해 겨눈 유서 깊은 망원경입니다.
+                </p>
+
+                <!-- Detailed Pros and Cons Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3.5">
+                  <div class="bg-emerald-50/80 p-3 rounded-2xl border border-emerald-200 text-xs space-y-1">
+                    <span class="font-bold text-emerald-900 flex items-center gap-1">
+                      <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> 주요 특장점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>경통 완전 밀폐:</strong> 내부 공기 대류가 없어 별상이 극도로 안정적입니다.</li>
+                      <li>• <strong>압도적 콘트라스트:</strong> 부경 차폐가 없어 행성과 달의 암흑 디테일이 선명합니다.</li>
+                      <li>• <strong>손쉬운 유지보수:</strong> 광축(콜리메이션)이 거의 틀어지지 않아 관리가 매우 쉽습니다.</li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-rose-50/80 p-3 rounded-2xl border border-rose-200 text-xs space-y-1">
+                    <span class="font-bold text-rose-900 flex items-center gap-1">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> 광학적 한계점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>색수차 발생:</strong> 빛의 파장별 굴절률 차이로 별 주변에 보랏빛 번짐이 나타납니다(아포크로매틱 렌즈로 보정 가능).</li>
+                      <li>• <strong>대구경 제작 난이도:</strong> 렌즈 두께로 인해 구경 150mm 이상은 무겁고 가격이 기하급수적으로 상승합니다.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Best Observation Target (Strict Single-Line Preservation) -->
+              <div class="p-2.5 sm:p-3 rounded-2xl bg-base-100 border border-base-300 text-xs text-slate-700 flex items-center gap-2 whitespace-nowrap overflow-x-auto">
+                <span class="badge badge-primary font-bold text-xs shrink-0 whitespace-nowrap">최적 관측</span>
+                <span class="whitespace-nowrap font-medium text-slate-800">달 크레이터 · 목성 줄무늬 및 대적점 · 토성 고리 · 이중성</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPE 2: Reflector (반사망원경 가로형 카드) -->
+          <div id="tele-card-reflector" class="tele-type-card bg-base-200/50 rounded-3xl p-5 md:p-6 border border-base-300 shadow-sm flex flex-col lg:flex-row gap-6 items-stretch hover:border-secondary/50 transition-colors">
+            <!-- Left Column: Visual Media (Ray Diagram & Enlarged Real Photo) -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="badge badge-secondary font-bold text-xs">반사망원경 (Reflector / Newtonian)</span>
+                <span class="text-[11px] font-mono text-slate-500">오목거울 반사 광학계</span>
+              </div>
+
+              <!-- Optical Ray Path Diagram (SVG) -->
+              <div class="bg-slate-950 rounded-2xl p-3 border border-slate-700">
+                <div class="text-[10px] text-amber-300 font-bold mb-1.5 flex items-center gap-1">
+                  <i data-lucide="git-commit" class="w-3 h-3"></i> 빛의 진행 경로 (Ray Diagram)
+                </div>
+                <svg viewBox="0 0 320 120" class="w-full h-auto">
+                  <rect x="40" y="25" width="250" height="70" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+                  <path d="M 285,30 Q 275,60 285,90" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" />
+                  <text x="270" y="106" fill="#93c5fd" font-size="9" text-anchor="middle" font-weight="bold">오목주경</text>
+                  <line x1="85" y1="48" x2="105" y2="68" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+                  <text x="95" y="42" fill="#cbd5e1" font-size="8" text-anchor="middle">사경(45°)</text>
+                  <line x1="15" y1="36" x2="280" y2="36" stroke="#fef08a" stroke-width="1.3" stroke-dasharray="3 2" />
+                  <line x1="15" y1="84" x2="280" y2="84" stroke="#fef08a" stroke-width="1.3" stroke-dasharray="3 2" />
+                  <line x1="280" y1="36" x2="95" y2="58" stroke="#facc15" stroke-width="1.4" />
+                  <line x1="280" y1="84" x2="95" y2="58" stroke="#facc15" stroke-width="1.4" />
+                  <line x1="95" y1="58" x2="95" y2="10" stroke="#facc15" stroke-width="1.5" />
+                  <circle cx="95" cy="18" r="2.5" fill="#ef4444" />
+                  <rect x="85" y="2" width="20" height="18" rx="3" fill="#64748b" stroke="#94a3b8" />
+                  <text x="135" y="14" fill="#cbd5e1" font-size="8">접안렌즈 (상단)</text>
+                </svg>
+              </div>
+
+              <!-- Enlarged Real Photo Container with Uncropped Containment -->
+              <div class="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md h-64 sm:h-72 w-full flex items-center justify-center p-3">
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Dobson-mount.jpg?width=800" alt="반사 돕소니언 망원경 사진" class="w-full h-full object-contain drop-shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/800x600/1e1b4b/f8fafc?text=10-inch+Dobsonian+Reflector';">
+                <span class="absolute bottom-2 right-2 bg-black/80 px-2.5 py-1 rounded-xl text-[10px] text-amber-300 font-bold border border-white/10">
+                  10인치 뉴턴식 돕소니언(Dobsonian) 실물 전경
+                </span>
+              </div>
+            </div>
+
+            <!-- Right Column: Scientific Details & Pros/Cons -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-4">
+              <div>
+                <h5 class="font-black text-slate-900 text-lg">오목거울 뉴턴식 반사 광학계</h5>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  아이작 뉴턴이 굴절망원경의 색수차를 없애기 위해 경통 바닥에 정밀 포물면 오목거울(주경)을 두고, 빛을 45도 기울어진 평면거울(사경)로 반사시켜 경통 상단 옆면에서 관측하도록 고안한 광학계입니다.
+                </p>
+
+                <!-- Detailed Pros and Cons Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3.5">
+                  <div class="bg-emerald-50/80 p-3 rounded-2xl border border-emerald-200 text-xs space-y-1">
+                    <span class="font-bold text-emerald-900 flex items-center gap-1">
+                      <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> 주요 특장점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>색수차 완전 제로:</strong> 빛이 유리를 통과하지 않고 표면에서 반사되므로 색 번짐이 전혀 없습니다.</li>
+                      <li>• <strong>최고의 가성비(대구경):</strong> 동일 예산 대비 8인치~12인치 이상의 압도적인 대구경(집광포)을 확보할 수 있습니다.</li>
+                      <li>• <strong>희미한 천체 집광:</strong> 심우주 은하와 성운을 볼 때 가장 밝고 웅장합니다.</li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-rose-50/80 p-3 rounded-2xl border border-rose-200 text-xs space-y-1">
+                    <span class="font-bold text-rose-900 flex items-center gap-1">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> 광학적 한계점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>주기적 광축 조절 필요:</strong> 이동 시 충격으로 주경과 사경의 중심(콜리메이션)을 정기적으로 맞춰야 합니다.</li>
+                      <li>• <strong>개방형 경통 먼지 유입:</strong> 경통 윗부분이 개방되어 있어 거울 세척과 관리가 필요합니다.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Best Observation Target (Strict Single-Line Preservation) -->
+              <div class="p-2.5 sm:p-3 rounded-2xl bg-base-100 border border-base-300 text-xs text-slate-700 flex items-center gap-2 whitespace-nowrap overflow-x-auto">
+                <span class="badge badge-secondary font-bold text-xs shrink-0 whitespace-nowrap">최적 관측</span>
+                <span class="whitespace-nowrap font-medium text-slate-800">안드로메다 은하 · 오리온 성운 · 플레이아데스 성단 등 딥스카이</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPE 3: Catadioptric (복합광학계 가로형 카드) -->
+          <div id="tele-card-catadioptric" class="tele-type-card bg-base-200/50 rounded-3xl p-5 md:p-6 border border-base-300 shadow-sm flex flex-col lg:flex-row gap-6 items-stretch hover:border-accent/50 transition-colors">
+            <!-- Left Column: Visual Media (Ray Diagram & Enlarged Real Photo) -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="badge badge-accent font-bold text-xs text-slate-900">복합광학계 (Catadioptric / SCT)</span>
+                <span class="text-[11px] font-mono text-slate-500">반사굴절 하이브리드 광학계</span>
+              </div>
+
+              <!-- Optical Ray Path Diagram (SVG) -->
+              <div class="bg-slate-950 rounded-2xl p-3 border border-slate-700">
+                <div class="text-[10px] text-amber-300 font-bold mb-1.5 flex items-center gap-1">
+                  <i data-lucide="git-commit" class="w-3 h-3"></i> 빛의 진행 경로 (Ray Diagram)
+                </div>
+                <svg viewBox="0 0 320 120" class="w-full h-auto">
+                  <rect x="50" y="25" width="180" height="70" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+                  <line x1="58" y1="28" x2="58" y2="92" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                  <circle cx="58" cy="60" r="9" fill="#0284c7" stroke="#38bdf8" />
+                  <text x="58" y="106" fill="#93c5fd" font-size="8" text-anchor="middle">보정판/부경</text>
+                  <path d="M 220,30 L 220,52 M 220,68 L 220,90" stroke="#f1f5f9" stroke-width="4" stroke-linecap="round" />
+                  <text x="215" y="106" fill="#cbd5e1" font-size="8" text-anchor="middle">구멍 뚫린 주경</text>
+                  <line x1="15" y1="36" x2="218" y2="36" stroke="#fef08a" stroke-width="1.3" stroke-dasharray="3 2" />
+                  <line x1="15" y1="84" x2="218" y2="84" stroke="#fef08a" stroke-width="1.3" stroke-dasharray="3 2" />
+                  <line x1="218" y1="36" x2="62" y2="56" stroke="#facc15" stroke-width="1.4" />
+                  <line x1="218" y1="84" x2="62" y2="64" stroke="#facc15" stroke-width="1.4" />
+                  <line x1="62" y1="56" x2="255" y2="60" stroke="#facc15" stroke-width="1.5" />
+                  <line x1="62" y1="64" x2="255" y2="60" stroke="#facc15" stroke-width="1.5" />
+                  <circle cx="255" cy="60" r="2.5" fill="#ef4444" />
+                  <rect x="235" y="48" width="25" height="24" rx="4" fill="#64748b" stroke="#94a3b8" />
+                  <text x="280" y="64" fill="#cbd5e1" font-size="8">후면 접안부</text>
+                </svg>
+              </div>
+
+              <!-- Enlarged Real Photo Container with Uncropped Containment -->
+              <div class="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md h-64 sm:h-72 w-full flex items-center justify-center p-3">
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/C8_smaller.jpg?width=800" alt="슈미트 카세그레인 복합망원경 실물 사진" class="w-full h-full object-contain drop-shadow-md" onerror="this.onerror=null; this.src='https://placehold.co/800x600/1e1b4b/f8fafc?text=Celestron+C8+SCT+Telescope';">
+                <span class="absolute bottom-2 right-2 bg-black/80 px-2.5 py-1 rounded-xl text-[10px] text-amber-300 font-bold border border-white/10">
+                  8인치 Celestron C8 (슈미트-카세그레인) 실물 전경
+                </span>
+              </div>
+            </div>
+
+            <!-- Right Column: Scientific Details & Pros/Cons -->
+            <div class="lg:w-1/2 flex flex-col justify-between space-y-4">
+              <div>
+                <h5 class="font-black text-slate-900 text-lg">반사·굴절 결합 슈미트-카세그레인(SCT) 광학계</h5>
+                <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  앞면의 얇은 비구면 보정판 렌즈와 내부의 구면 주경, 볼록 부경을 결합하여 빛을 경통 안에서 2번 지그재그로 꺾습니다. 경통 길이는 짧게 줄이면서 초점거리는 2,000mm 이상 길게 뽑아내는 현대 천문학의 걸작입니다.
+                </p>
+
+                <!-- Detailed Pros and Cons Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3.5">
+                  <div class="bg-emerald-50/80 p-3 rounded-2xl border border-emerald-200 text-xs space-y-1">
+                    <span class="font-bold text-emerald-900 flex items-center gap-1">
+                      <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> 주요 특장점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>극강의 휴대성:</strong> 8인치 대구경이면서도 경통 길이가 40cm에 불과해 승용차 트렁크에 쏙 들어갑니다.</li>
+                      <li>• <strong>초장초점 고배율:</strong> 초점거리가 2,000mm를 넘어 행성과 달의 크레이터를 고배율로 확대하기에 최적입니다.</li>
+                      <li>• <strong>편리한 후면 관측:</strong> 굴절망원경처럼 경통 뒤쪽에서 편안한 자세로 관측할 수 있습니다.</li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-rose-50/80 p-3 rounded-2xl border border-rose-200 text-xs space-y-1">
+                    <span class="font-bold text-rose-900 flex items-center gap-1">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> 광학적 한계점
+                    </span>
+                    <ul class="text-[11px] text-slate-600 space-y-1 pl-1">
+                      <li>• <strong>중앙 차폐율:</strong> 앞면 보정판 중앙의 부경으로 인해 굴절망원경보다 미세한 명암 콘트라스트가 다소 떨어집니다.</li>
+                      <li>• <strong>밀폐 경통 냉각 시간:</strong> 외부 기온에 적응(외기 순응)하는 데 약 30분~1시간이 필요합니다.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Best Observation Target (Strict Single-Line Preservation) -->
+              <div class="p-2.5 sm:p-3 rounded-2xl bg-base-100 border border-base-300 text-xs text-slate-700 flex items-center gap-2 whitespace-nowrap overflow-x-auto">
+                <span class="badge badge-accent font-bold text-xs text-slate-900 shrink-0 whitespace-nowrap">최적 관측</span>
+                <span class="whitespace-nowrap font-medium text-slate-800">고배율 목성·토성 행성 표면 관측 및 달 지형 정밀 사진 촬영</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-action p-4 bg-base-200/50 border-t border-base-300 m-0 flex justify-between items-center">
+        <span class="text-xs text-slate-500 font-medium">2026 하늘 꿈, 별빛 축제 • 천체망원경 광학 교실</span>
+        <form method="dialog">
+          <button class="btn btn-sm btn-primary">확인 및 닫기</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- MODAL 2: Telescope Magnification & Optics Calculator -->
+  <dialog id="telescope_calc_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-5xl bg-base-100 rounded-3xl p-0 overflow-hidden border border-emerald-500/30 shadow-2xl">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-950 p-5 text-white flex items-center justify-between border-b border-emerald-800/40">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl text-emerald-300">
+            <i data-lucide="calculator" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-accent badge-sm font-bold text-slate-900 text-xs">망원경 광학 연산기</span>
+              <span class="text-xs text-slate-300">구경 · 초점거리 · 접안렌즈 · 바로우 렌즈 완벽 분석</span>
+            </div>
+            <h3 class="text-xl font-black text-emerald-200">실시간 천체망원경 배율 & 광학 스펙 계산기</h3>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost text-slate-300 hover:text-white">✕</button>
+        </form>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 md:p-6 max-h-[80vh] overflow-y-auto space-y-6">
+        
+        <!-- SECTION 1: MASTER OPTICAL ANATOMY SCHEMATIC DIAGRAM -->
+        <div class="bg-slate-950 rounded-3xl p-5 border-2 border-emerald-500/40 shadow-xl space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-xl bg-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-sm">📐</span>
+              <h4 class="font-black text-white text-base">천체망원경 4대 핵심 광학 요소 해부도</h4>
+            </div>
+            <span class="text-xs font-mono text-emerald-300 bg-emerald-950 px-3 py-1 rounded-full border border-emerald-700/60 font-bold">
+              총 배율 (Magnification) = (F × 바로우) ÷ f
+            </span>
+          </div>
+
+          <!-- Comprehensive Optical Diagram (SVG) -->
+          <div class="w-full overflow-x-auto py-2">
+            <svg viewBox="0 0 920 280" class="w-full min-w-[720px] h-auto select-none font-sans">
+              <defs>
+                <linearGradient id="tubeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#334155" />
+                  <stop offset="50%" stop-color="#1e293b" />
+                  <stop offset="100%" stop-color="#0f172a" />
+                </linearGradient>
+                <linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+                  <stop offset="100%" stop-color="#0284c7" stop-opacity="0.9" />
+                </linearGradient>
+              </defs>
+
+              <!-- Sky light rays coming into telescope from left -->
+              <g stroke="#fef08a" stroke-width="1.8" stroke-dasharray="6 4" opacity="0.75">
+                <line x1="20" y1="70" x2="120" y2="70" />
+                <line x1="20" y1="110" x2="120" y2="110" />
+                <line x1="20" y1="140" x2="120" y2="140" />
+                <line x1="20" y1="170" x2="120" y2="170" />
+                <line x1="20" y1="210" x2="120" y2="210" />
+              </g>
+              <text x="35" y="55" fill="#fde047" font-size="12" font-weight="bold">우주에서 오는 평행 광선</text>
+
+              <!-- Telescope Outer Tube Body -->
+              <rect x="120" y="50" width="520" height="180" rx="16" fill="url(#tubeGrad)" stroke="#64748b" stroke-width="2.5" />
+              <rect x="110" y="44" width="20" height="192" rx="6" fill="#475569" stroke="#94a3b8" />
+
+              <!-- 1. OBJECTIVE LENS (대물렌즈) -->
+              <ellipse cx="125" cy="140" rx="14" ry="85" fill="url(#lensGrad)" stroke="#7dd3fc" stroke-width="2.5" />
+
+              <!-- 2. CONVERGING LIGHT CONE (초점거리 광선 다발) -->
+              <polygon points="125,70 610,140 125,210" fill="#facc15" fill-opacity="0.18" />
+              <line x1="125" y1="70" x2="610" y2="140" stroke="#facc15" stroke-width="2" />
+              <line x1="125" y1="210" x2="610" y2="140" stroke="#facc15" stroke-width="2" />
+              <line x1="125" y1="140" x2="610" y2="140" stroke="#fde047" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.6" />
+
+              <!-- 3. BARLOW LENS INSERTION POINT (바로우 렌즈) -->
+              <rect x="540" y="105" width="24" height="70" rx="6" fill="#047857" stroke="#10b981" stroke-width="2" />
+              <!-- Diverging rays by Barlow lens -->
+              <line x1="550" y1="122" x2="710" y2="140" stroke="#34d399" stroke-width="2.2" stroke-dasharray="4 2" />
+              <line x1="550" y1="158" x2="710" y2="140" stroke="#34d399" stroke-width="2.2" stroke-dasharray="4 2" />
+
+              <!-- FOCAL POINTS -->
+              <circle cx="610" cy="140" r="4.5" fill="#ef4444" stroke="#fee2e2" stroke-width="1.5" />
+              <circle cx="710" cy="140" r="4.5" fill="#10b981" stroke="#d1fae5" stroke-width="1.5" />
+
+              <!-- 4. FOCUSER & EYEPIECE (접안렌즈 & 접안부) -->
+              <rect x="640" y="112" width="70" height="56" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="2" />
+              <rect x="710" y="100" width="65" height="80" rx="8" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.5" />
+              <ellipse cx="730" cy="140" rx="6" ry="28" fill="#38bdf8" opacity="0.8" stroke="#0284c7" />
+              <ellipse cx="755" cy="140" rx="5" ry="24" fill="#38bdf8" opacity="0.8" stroke="#0284c7" />
+              <path d="M 775,115 C 795,115 805,125 805,140 C 805,155 795,165 775,165" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+
+              <!-- HUMAN EYE (관측자의 눈) -->
+              <g transform="translate(820, 140)">
+                <path d="M 0,0 Q 22,-24 45,0 Q 22,24 0,0 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+                <circle cx="22" cy="0" r="11" fill="#3b82f6" />
+                <circle cx="22" cy="0" r="5" fill="#020617" />
+                <circle cx="25" cy="-3" r="2.5" fill="#ffffff" />
+                <text x="22" y="38" fill="#cbd5e1" font-size="11" text-anchor="middle" font-weight="bold">관측자의 눈</text>
+              </g>
+
+              <!-- DIMENSION ANNOTATIONS & LABELS -->
+              <!-- 1. APERTURE (D) -->
+              <g stroke="#38bdf8" stroke-width="1.8">
+                <line x1="85" y1="55" x2="85" y2="225" />
+                <line x1="75" y1="55" x2="95" y2="55" />
+                <line x1="75" y1="225" x2="95" y2="225" />
+                <polygon points="85,55 81,68 89,68" fill="#38bdf8" />
+                <polygon points="85,225 81,212 89,212" fill="#38bdf8" />
+              </g>
+              <rect x="18" y="125" width="134" height="30" rx="6" fill="#0284c7" />
+              <text x="85" y="145" fill="#ffffff" font-size="12" font-weight="900" text-anchor="middle">① 대물렌즈 구경 (D)</text>
+
+              <!-- 2. TELESCOPE FOCAL LENGTH (F) -->
+              <g stroke="#facc15" stroke-width="1.8">
+                <line x1="125" y1="250" x2="610" y2="250" />
+                <line x1="125" y1="240" x2="125" y2="260" />
+                <line x1="610" y1="240" x2="610" y2="260" />
+                <polygon points="125,250 138,246 138,254" fill="#facc15" />
+                <polygon points="610,250 597,246 597,254" fill="#facc15" />
+              </g>
+              <rect x="270" y="235" width="195" height="28" rx="6" fill="#d97706" />
+              <text x="367" y="254" fill="#ffffff" font-size="12" font-weight="900" text-anchor="middle">② 경통 초점거리 (F)</text>
+
+              <!-- 3. BARLOW LENS -->
+              <path d="M 552,95 L 552,28" stroke="#10b981" stroke-width="1.8" stroke-dasharray="3 3" />
+              <circle cx="552" cy="95" r="4" fill="#10b981" />
+              <rect x="475" y="8" width="160" height="26" rx="6" fill="#059669" />
+              <text x="555" y="25" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle">④ 바로우 렌즈 (초점 2x~3x 확장)</text>
+
+              <!-- 4. EYEPIECE FOCAL LENGTH (f) -->
+              <g stroke="#ec4899" stroke-width="1.8">
+                <line x1="710" y1="205" x2="775" y2="205" />
+                <line x1="710" y1="195" x2="710" y2="215" />
+                <line x1="775" y1="195" x2="775" y2="215" />
+                <polygon points="710,205 718,201 718,209" fill="#ec4899" />
+                <polygon points="775,205 767,201 767,209" fill="#ec4899" />
+              </g>
+              <rect x="665" y="220" width="150" height="28" rx="6" fill="#be185d" />
+              <text x="740" y="239" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle">③ 접안렌즈 초점거리 (f)</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- SECTION 2: 4-CARD DETAILED COMPONENT EXPLAINER -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- Aperture -->
+          <div class="bg-sky-50/80 rounded-2xl p-4 border border-sky-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-sky-500 text-white flex items-center justify-center font-black text-xs">①</span>
+              <h5 class="font-bold text-sky-950 text-sm">대물렌즈 구경 (Aperture, D)</h5>
+            </div>
+            <p class="text-[11px] text-sky-900 leading-relaxed">
+              빛을 받아들이는 <strong>대물렌즈나 반사경의 지름(mm)</strong>입니다.
+            </p>
+            <div class="text-[10px] text-slate-600 bg-white p-2 rounded-xl border border-sky-200 space-y-1">
+              <div>• <strong>집광력:</strong> 구경의 제곱에 비례 (구경이 2배면 빛은 4배 밝아짐)</div>
+              <div>• <strong>분해능:</strong> 두 별을 떼어놓고 보는 한계 해상도를 결정합니다.</div>
+            </div>
+          </div>
+
+          <!-- Telescope Focal Length -->
+          <div class="bg-amber-50/80 rounded-2xl p-4 border border-amber-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black text-xs">②</span>
+              <h5 class="font-bold text-amber-950 text-sm">경통 초점거리 (Focal Length, F)</h5>
+            </div>
+            <p class="text-[11px] text-amber-900 leading-relaxed">
+              대물렌즈에서 모인 빛이 <strong>하나의 점으로 맺히는 곳까지의 거리(mm)</strong>입니다.
+            </p>
+            <div class="text-[10px] text-slate-600 bg-white p-2 rounded-xl border border-amber-200 space-y-1">
+              <div>• <strong>초점거리(F)가 길수록:</strong> 맺히는 상의 기본 크기가 커져 고배율에 유리합니다.</div>
+              <div>• <strong>초점거리(F)가 짧을수록:</strong> 시야가 넓어져 넓은 성운 관측에 유리합니다.</div>
+            </div>
+          </div>
+
+          <!-- Eyepiece Focal Length -->
+          <div class="bg-pink-50/80 rounded-2xl p-4 border border-pink-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-pink-500 text-white flex items-center justify-center font-black text-xs">③</span>
+              <h5 class="font-bold text-pink-950 text-sm">접안렌즈 초점거리 (Eyepiece, f)</h5>
+            </div>
+            <p class="text-[11px] text-pink-900 leading-relaxed">
+              초점에 맺힌 실상을 <strong>우리 눈으로 들여다볼 수 있게 확대하는 돋보기 렌즈</strong>의 규격입니다.
+            </p>
+            <div class="text-[10px] text-slate-600 bg-white p-2 rounded-xl border border-pink-200 space-y-1">
+              <div>• <strong>숫자가 작을수록 (예: 6mm, 9mm):</strong> 고배율 확대 (행성 관측용)</div>
+              <div>• <strong>숫자가 클수록 (예: 25mm, 32mm):</strong> 저배율 광시야 (은하·성단용)</div>
+            </div>
+          </div>
+
+          <!-- Barlow Lens -->
+          <div class="bg-emerald-50/80 rounded-2xl p-4 border border-emerald-200 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs">④</span>
+              <h5 class="font-bold text-emerald-950 text-sm">바로우 렌즈 (Barlow Lens)</h5>
+            </div>
+            <p class="text-[11px] text-emerald-900 leading-relaxed">
+              접안렌즈 바로 앞부분에 삽입하여 <strong>초점거리를 2배, 3배로 늘려주는 광학 보조기구</strong>입니다.
+            </p>
+            <div class="text-[10px] text-slate-600 bg-white p-2 rounded-xl border border-emerald-200 space-y-1">
+              <div>• 20mm 접안렌즈에 2x 바로우를 끼우면 마치 <strong>10mm 초고배율 렌즈</strong>를 꽂은 것과 동일합니다!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: INTERACTIVE INPUT CONTROLS & REALTIME COMPUTATION -->
+        <div class="bg-gradient-to-br from-emerald-50/90 via-base-100 to-teal-50/70 p-5 rounded-3xl border border-emerald-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+            <h4 class="font-black text-slate-900 text-base flex items-center gap-2">
+              <i data-lucide="sliders" class="w-5 h-5 text-emerald-600"></i>
+              내 망원경 수치 입력 & 실시간 계산
+            </h4>
+            <span class="text-xs font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full font-bold">배율 = (F × Barlow) ÷ f</span>
+          </div>
+
+          <!-- Input Controls Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="form-control">
+              <label class="label py-1">
+                <span class="label-text text-xs font-bold text-slate-700">① 대물렌즈 구경 (D)</span>
+                <span class="label-text-alt text-[10px] text-slate-500">집광력 & 한계배율</span>
+              </label>
+              <div class="join w-full">
+                <input type="number" id="calc-aperture" value="102" min="30" max="600" step="1" oninput="calculateOptics()" class="input input-sm input-bordered join-item w-full font-bold font-mono focus:outline-emerald-500" />
+                <span class="btn btn-sm join-item pointer-events-none text-xs bg-base-200">mm</span>
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label py-1">
+                <span class="label-text text-xs font-bold text-slate-700">② 경통 초점거리 (F)</span>
+                <span class="label-text-alt text-[10px] text-slate-500">대물경 초점거리</span>
+              </label>
+              <div class="join w-full">
+                <input type="number" id="calc-focal" value="1000" min="200" max="4000" step="10" oninput="calculateOptics()" class="input input-sm input-bordered join-item w-full font-bold font-mono focus:outline-emerald-500" />
+                <span class="btn btn-sm join-item pointer-events-none text-xs bg-base-200">mm</span>
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label py-1">
+                <span class="label-text text-xs font-bold text-slate-700">③ 접안렌즈 초점거리 (f)</span>
+                <span class="label-text-alt text-[10px] text-slate-500">아이피스 규격</span>
+              </label>
+              <div class="join w-full">
+                <input type="number" id="calc-eyepiece" value="10" min="2" max="60" step="0.5" oninput="calculateOptics()" class="input input-sm input-bordered join-item w-full font-bold font-mono focus:outline-emerald-500" />
+                <span class="btn btn-sm join-item pointer-events-none text-xs bg-base-200">mm</span>
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label py-1">
+                <span class="label-text text-xs font-bold text-slate-700">④ 바로우 렌즈 배율</span>
+                <span class="label-text-alt text-[10px] text-slate-500">초점거리 증폭기</span>
+              </label>
+              <select id="calc-barlow" onchange="calculateOptics()" class="select select-sm select-bordered font-bold focus:outline-emerald-500">
+                <option value="1">사용 안함 (1.0x)</option>
+                <option value="1.5">1.5x 바로우 렌즈</option>
+                <option value="2" selected>2.0x 바로우 렌즈</option>
+                <option value="3">3.0x 바로우 렌즈</option>
+                <option value="5">5.0x 파워메이트</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="flex items-center gap-1.5 flex-wrap pt-1">
+            <span class="text-[11px] font-bold text-slate-500 mr-1">인기 망원경 빠른 설정:</span>
+            <button onclick="setCalcPreset(80, 900, 25, 1)" class="btn btn-xs bg-base-100 hover:bg-emerald-100 border border-slate-300">입문용 80mm 굴절 (36x)</button>
+            <button onclick="setCalcPreset(102, 1000, 10, 2)" class="btn btn-xs bg-base-100 hover:bg-emerald-100 border border-slate-300">행성관측 102mm (200x)</button>
+            <button onclick="setCalcPreset(200, 1200, 20, 1)" class="btn btn-xs bg-base-100 hover:bg-emerald-100 border border-slate-300">8인치 돕소니언 (60x)</button>
+            <button onclick="setCalcPreset(203, 2000, 12, 1)" class="btn btn-xs bg-base-100 hover:bg-emerald-100 border border-slate-300">8인치 SCT (167x)</button>
+          </div>
+
+          <!-- Real-time Results -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+            <div class="bg-base-100 p-3 rounded-2xl border-2 border-emerald-400 text-center shadow-sm">
+              <span class="text-[10px] text-slate-500 font-semibold block">현재 총 관측 배율</span>
+              <span class="text-xl md:text-2xl font-black text-emerald-700 font-mono" id="res-power">200x</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5" id="res-power-formula">(1000/10) × 2</span>
+            </div>
+
+            <div class="bg-base-100 p-3 rounded-2xl border border-base-300 text-center shadow-sm">
+              <span class="text-[10px] text-slate-500 font-semibold block">초점비 (F값, 구경비)</span>
+              <span class="text-xl md:text-2xl font-black text-slate-800 font-mono" id="res-fratio">F/9.8</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5">F = 경통초점 / 구경</span>
+            </div>
+
+            <div class="bg-base-100 p-3 rounded-2xl border border-base-300 text-center shadow-sm">
+              <span class="text-[10px] text-slate-500 font-semibold block">적정 유효 최고 배율 한계</span>
+              <span class="text-xl md:text-2xl font-black text-amber-600 font-mono" id="res-max-useful">204x</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5">구경(D) mm × 2.0</span>
+            </div>
+
+            <div class="bg-base-100 p-3 rounded-2xl border border-base-300 text-center shadow-sm">
+              <span class="text-[10px] text-slate-500 font-semibold block">사람 눈 대비 집광력</span>
+              <span class="text-xl md:text-2xl font-black text-indigo-600 font-mono" id="res-light-gather">212배</span>
+              <span class="text-[9px] text-slate-400 block mt-0.5">(D / 7mm)²</span>
+            </div>
+          </div>
+
+          <!-- Scientific Evaluation -->
+          <div class="p-3.5 rounded-2xl bg-base-100 border border-base-300 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base flex-shrink-0" id="res-eval-icon">🎯</div>
+            <div class="space-y-0.5 flex-1 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900" id="res-eval-title">광학 배율 평가 및 최적 관측 대상</span>
+                <span class="badge badge-sm font-bold text-[10px]" id="res-eval-badge">적정 고배율</span>
+              </div>
+              <p class="text-slate-600 leading-relaxed" id="res-eval-desc">
+                토성의 고리(카시니 간극), 목성의 대적점 및 줄무늬, 달의 충돌구 세부 지형을 꽉 차게 관측하기에 가장 이상적인 배율입니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-action p-4 bg-base-200/50 border-t border-base-300 m-0 flex justify-between items-center">
+        <span class="text-xs text-slate-500 font-medium">2026 하늘 꿈, 별빛 축제 • 천체망원경 배율 계산기</span>
+        <form method="dialog">
+          <button class="btn btn-sm btn-primary">확인 및 관측 복귀</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- MODAL 3: Interactive Moon Exploration (Selenography) -->
+  <dialog id="moon_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-4xl bg-base-100 rounded-3xl p-0 overflow-hidden border border-slate-700 shadow-2xl">
+      <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-5 text-white flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-300/20 text-amber-200 flex items-center justify-center text-xl font-bold">
+            🌕
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-primary badge-sm font-bold text-xs">달 정밀 지형 탐구</span>
+              <span class="text-xs text-slate-300">육지 vs 바다 & 비의 바다 상세</span>
+            </div>
+            <h3 class="text-lg md:text-xl font-black text-amber-200">신비한 달의 표면 구조와 명칭의 유래</h3>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost text-slate-300 hover:text-white">✕</button>
+        </form>
+      </div>
+
+      <div class="p-5 md:p-6 max-h-[75vh] overflow-y-auto space-y-5">
+        <!-- Core Science Explanation -->
+        <div class="bg-amber-50/80 rounded-2xl p-4 border border-amber-200 flex flex-col sm:flex-row gap-3 items-start">
+          <div class="w-10 h-10 rounded-xl bg-amber-200 text-amber-900 flex-shrink-0 flex items-center justify-center font-black text-xl">
+            💡
+          </div>
+          <div class="text-xs text-slate-700 space-y-1 leading-relaxed">
+            <h4 class="font-bold text-slate-900 text-sm">달은 왜 '육지(고지대)'와 '바다(저지대)'로 나뉘어 있을까요?</h4>
+            <p>
+              과거 갈릴레이 등 초기 천문학자들은 달의 어두운 부분을 실제 물이 차 있는 바다라고 믿어 라틴어로 <strong>마레(Mare, 바다)</strong>라는 이름을 붙였습니다.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div class="p-2 rounded-xl bg-white border border-amber-200">
+                <strong class="text-slate-900">🌑 달의 바다 (Mare):</strong> 현무암질 용암이 거대한 충돌 분지를 채워 굳은 평원. 철과 티타늄 함량이 높아 반사율이 낮아 <strong>어둡게</strong> 보입니다.
+              </div>
+              <div class="p-2 rounded-xl bg-white border border-amber-200">
+                <strong class="text-slate-900">🌕 달의 고지대 (Terrae, 육지):</strong> 40억 년 전 마그마 바다에서 떠오른 가벼운 사장석(칼슘·알루미늄 규산염) 광물로 <strong>밝고 험준한 산맥과 크레이터</strong>로 가득합니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Clickable Moon Map & Dynamic Detail Pane -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <!-- Moon SVG Interactive Map -->
+          <div class="relative bg-slate-950 rounded-3xl p-4 flex flex-col items-center justify-center border border-slate-800">
+            <span class="text-xs text-amber-300 font-bold mb-2">지형 핀을 클릭하면 실제 NASA 사진과 해설이 열립니다</span>
+            
+            <svg viewBox="0 0 400 400" class="w-full max-w-[320px] h-auto drop-shadow-2xl select-none">
+              <defs>
+                <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#f8fafc" />
+                  <stop offset="70%" stop-color="#cbd5e1" />
+                  <stop offset="100%" stop-color="#64748b" />
+                </radialGradient>
+              </defs>
+              <circle cx="200" cy="200" r="170" fill="url(#moonGlow)" stroke="#94a3b8" stroke-width="2" />
+
+              <!-- Basaltic Maria Patches -->
+              <path d="M 140,110 Q 180,90 220,120 Q 230,170 170,180 Q 120,160 140,110 Z" fill="#334155" opacity="0.85" />
+              <ellipse cx="240" cy="150" rx="35" ry="30" fill="#334155" opacity="0.8" />
+              <ellipse cx="265" cy="195" rx="40" ry="35" fill="#334155" opacity="0.85" />
+              <path d="M 90,140 Q 120,180 110,240 Q 80,260 70,180 Z" fill="#334155" opacity="0.8" />
+              <ellipse cx="310" cy="160" rx="22" ry="18" fill="#1e293b" opacity="0.9" />
+
+              <!-- Clickable Pins -->
+              <!-- Pin 1: Mare Imbrium (비의 바다) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('imbrium')">
+                <circle cx="175" cy="140" r="14" fill="#3b82f6" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="175" y="144" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">1</text>
+                <text x="175" y="165" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">비의 바다</text>
+              </g>
+
+              <!-- Pin 2: Mare Tranquillitatis (고요의 바다) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('tranquillity')">
+                <circle cx="265" cy="195" r="14" fill="#10b981" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="265" y="199" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">2</text>
+                <text x="265" y="220" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">고요의 바다</text>
+              </g>
+
+              <!-- Pin 3: Oceanus Procellarum (폭풍의 대양) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('procellarum')">
+                <circle cx="95" cy="190" r="14" fill="#8b5cf6" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="95" y="194" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">3</text>
+                <text x="95" y="215" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">폭풍의 대양</text>
+              </g>
+
+              <!-- Pin 4: Tycho Crater (티코 충돌구) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('tycho')">
+                <circle cx="195" cy="310" r="12" fill="#ef4444" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="195" y="314" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">4</text>
+                <text x="195" y="333" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">티코 충돌구</text>
+              </g>
+
+              <!-- Pin 5: Copernicus Crater (코페르니쿠스) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('copernicus')">
+                <circle cx="150" cy="210" r="12" fill="#f97316" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="150" y="214" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">5</text>
+                <text x="150" y="233" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">코페르니쿠스</text>
+              </g>
+
+              <!-- Pin 6: Mare Crisium (위난의 바다) -->
+              <g class="cursor-pointer transition-transform hover:scale-110" onclick="showMoonFeature('crisium')">
+                <circle cx="310" cy="160" r="12" fill="#ec4899" fill-opacity="0.8" stroke="#ffffff" stroke-width="2" />
+                <text x="310" y="164" fill="#ffffff" font-size="10" font-weight="900" text-anchor="middle">6</text>
+                <text x="310" y="183" fill="#fde047" font-size="9" font-weight="bold" text-anchor="middle">위난의 바다</text>
+              </g>
+            </svg>
+
+            <!-- Quick Jump Buttons for Moon Features -->
+            <div class="flex flex-wrap justify-center gap-1.5 mt-3 max-w-sm">
+              <button onclick="showMoonFeature('imbrium')" class="btn btn-xs btn-outline btn-primary">비의 바다</button>
+              <button onclick="showMoonFeature('tranquillity')" class="btn btn-xs btn-outline btn-success">고요의 바다</button>
+              <button onclick="showMoonFeature('procellarum')" class="btn btn-xs btn-outline btn-secondary">폭풍의 대양</button>
+              <button onclick="showMoonFeature('tycho')" class="btn btn-xs btn-outline btn-error">티코 충돌구</button>
+              <button onclick="showMoonFeature('copernicus')" class="btn btn-xs btn-outline btn-warning">코페르니쿠스</button>
+              <button onclick="showMoonFeature('crisium')" class="btn btn-xs btn-outline btn-accent">위난의 바다</button>
+            </div>
+          </div>
+
+          <!-- Feature Description Card with Real NASA Photo -->
+          <div class="bg-base-200/60 p-4 rounded-3xl border border-base-300 space-y-3" id="moon-feature-card">
+            <div class="relative h-48 rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md flex items-center justify-center p-2">
+              <img id="moon-feat-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Mare_Imbrium_(LRO).png" alt="달 지형 실제 사진" class="w-full h-full object-contain" onerror="onMoonImgError(this);">
+              <span id="moon-feat-tag" class="absolute bottom-2 right-2 bg-black/75 px-2 py-0.5 rounded text-[10px] text-amber-300 font-bold">
+                NASA LRO 탐사선 촬영
+              </span>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <h5 class="text-base font-black text-slate-900" id="moon-feat-title">비의 바다 (Mare Imbrium)</h5>
+                <span class="badge badge-primary font-bold text-xs" id="moon-feat-badge">지름 1,145 km</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed" id="moon-feat-desc">
+                약 39억 년 전 거대한 소행성이 충돌하여 형성된 거대한 충돌 분지입니다. 충돌 후 수억 년에 걸쳐 달 내부 마그마가 분출하여 검은 현무암 용암으로 가득 채워져 매끄러운 평원이 되었습니다. 아펜니노 산맥이 바다의 남동쪽 테두리를 둘러싸고 있어 소구경 망원경으로도 극적인 명암 그림자를 볼 수 있습니다.
+              </p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-base-100 border border-base-300 text-[11px] text-slate-700" id="moon-feat-telescope">
+              🔭 <strong>망원경 관측 포인트:</strong> 상현달 직후(월령 7~9일) 명암 경계선이 비의 바다를 가로지를 때 산맥의 긴 그림자와 플라토(Plato) 크레이터의 칠흑 같은 바닥을 감상해 보세요!
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-action p-4 bg-base-200/50 border-t border-base-300 m-0 flex justify-between items-center">
+        <span class="text-xs text-slate-500 font-medium">2026 하늘 꿈, 별빛 축제 • 달 탐구관</span>
+        <form method="dialog">
+          <button class="btn btn-sm btn-primary">확인 및 닫기</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- MODAL 4: Celestial Object Detail Modal (Planets, Deep-sky) -->
+  <dialog id="object_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-4xl bg-base-100 rounded-3xl p-0 overflow-hidden border border-slate-700 shadow-2xl">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 p-5 text-white flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-primary/20 text-primary-content flex items-center justify-center text-2xl font-bold" id="obj-modal-icon">
+            🪐
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-accent badge-sm font-bold text-slate-900" id="obj-modal-type">태양계 행성</span>
+              <span class="text-xs text-slate-300" id="obj-modal-subtitle">NASA & 천문대 실제 탐사 데이터</span>
+            </div>
+            <h3 class="text-xl font-black text-amber-200" id="obj-modal-name">토성 (Saturn) - 신비한 얼음 고리의 행성</h3>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost text-slate-300 hover:text-white">✕</button>
+        </form>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 md:p-6 max-h-[78vh] overflow-y-auto space-y-5">
+        <!-- Object Photo Banner -->
+        <div class="relative h-60 w-full rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-md flex items-center justify-center p-2.5">
+          <img id="obj-modal-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Saturn_during_Equinox.jpg?width=900" alt="천체 실제 사진" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/900x450/0f172a/f8fafc?text=NASA+Astrophotography';">
+          <span id="obj-modal-img-tag" class="absolute bottom-2 right-2 bg-black/80 px-2.5 py-1 rounded-xl text-xs text-amber-300 font-bold border border-white/10">
+            NASA 카시니 탐사선 촬영
+          </span>
+        </div>
+
+        <!-- Quick Spec Stats -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center" id="obj-modal-stats">
+          <div class="bg-base-200/70 p-3 rounded-2xl border border-base-300">
+            <span class="text-[10px] text-slate-500 font-semibold block">지름 (크기)</span>
+            <span class="text-sm font-black text-slate-800" id="obj-stat-diameter">120,536 km</span>
+          </div>
+          <div class="bg-base-200/70 p-3 rounded-2xl border border-base-300">
+            <span class="text-[10px] text-slate-500 font-semibold block">지구와의 거리</span>
+            <span class="text-sm font-black text-slate-800" id="obj-stat-distance">약 14억 km</span>
+          </div>
+          <div class="bg-base-200/70 p-3 rounded-2xl border border-base-300">
+            <span class="text-[10px] text-slate-500 font-semibold block">자전 주기</span>
+            <span class="text-sm font-black text-slate-800" id="obj-stat-rotation">10시간 33분</span>
+          </div>
+          <div class="bg-base-200/70 p-3 rounded-2xl border border-base-300">
+            <span class="text-[10px] text-slate-500 font-semibold block">공전 주기</span>
+            <span class="text-sm font-black text-slate-800" id="obj-stat-orbit">29.5년</span>
+          </div>
+        </div>
+
+        <!-- Detailed Scientific Explanation -->
+        <div class="bg-base-200/40 p-4 rounded-3xl border border-base-300 space-y-2">
+          <h4 class="font-bold text-slate-900 text-sm flex items-center gap-1.5" id="obj-deep-title">
+            <i data-lucide="book-open" class="w-4 h-4 text-primary"></i> 천체 과학 심층 해설
+          </h4>
+          <div class="text-xs text-slate-700 leading-relaxed space-y-2" id="obj-deep-content">
+            <!-- Dynamic Content Injected Here -->
+          </div>
+        </div>
+
+        <!-- Planetary Moons Showcase Section -->
+        <div class="bg-indigo-50/70 p-4 rounded-3xl border border-indigo-200 space-y-3" id="obj-moons-section">
+          <div class="flex items-center justify-between border-b border-indigo-200 pb-2">
+            <h4 class="font-black text-indigo-950 text-sm flex items-center gap-2">
+              <i data-lucide="orbit" class="w-4 h-4 text-indigo-600"></i>
+              주요 위성(Moons) 정밀 탐구
+            </h4>
+            <span class="text-[11px] font-bold text-indigo-700" id="obj-moons-count">확인된 위성 수: 146개</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="obj-moons-list">
+            <!-- Dynamic Moon Cards Injected Here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-action p-4 bg-base-200/50 border-t border-base-300 m-0 flex justify-between items-center">
+        <span class="text-xs text-slate-500 font-medium">2026 하늘 꿈, 별빛 축제 • 천체 탐구관</span>
+        <form method="dialog">
+          <button class="btn btn-sm btn-primary">확인 및 닫기</button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+
+  <!-- Page Footer -->
+  <footer class="footer items-center p-4 bg-base-100 text-slate-600 border-t border-base-300 mt-auto">
+    <div class="items-center grid-flow-col gap-2">
+      <span class="text-lg">🔭</span>
+      <p class="text-xs">
+        <strong class="text-slate-800">2026 하늘 꿈, 별빛 축제</strong> | 충남 금산군 천체망원경 관측 가이드 & 실시간 밤하늘 시뮬레이터
+      </p>
+    </div>
+    <div class="grid-flow-col gap-4 md:place-self-center md:justify-self-end text-xs text-slate-500">
+      <span>남쪽·동쪽 관측 우선 시스템</span>
+      <span>•</span>
+      <span>광학 연산 엔진 탑재</span>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // ---------------------------------------------------------------------------
+    // Observation State & Observer Geolocation
+    // ---------------------------------------------------------------------------
+    let currentLat = 36.1077; // Geumsan-gun default
+    let currentLon = 127.4878;
+    let locationName = "충청남도 금산군";
+
+    let observationDate = new Date(2026, 9, 23, 19, 0, 0); // Default: 2026-10-23 19:00
+    let currentViewDirection = 'all'; // 'all', 'E', 'S', 'W', 'N'
+
+    let showConstellations = true;
+    let showConstellationNames = true;
+    let showReticle = false;
+    let isNightVision = false;
+    let isTimeFlowRunning = false;
+    let timeFlowTimer = null;
+
+    // Canvas Navigation Transform
+    let zoomLevel = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let directionalAzOffset = 0; // Horizontal 360° pan in degrees
+    let directionalAltOffset = 0; // Vertical tilt in degrees (-20° to +55°)
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    // ---------------------------------------------------------------------------
+    // Celestial Catalog with Authentic NASA/ESA Astrophotography & Moons
+    // ---------------------------------------------------------------------------
+    const celestialCatalog = {
+      // 1. Mercury (수성)
+      mercury: {
+        id: "mercury",
+        name: "수성 (Mercury)",
+        type: "태양계 제1행성",
+        color: "#94a3b8",
+        size: 5,
+        ra: 14.5,
+        dec: -12.0,
+        diameter: "4,879 km (지구의 38%)",
+        distance: "약 9,170만 km",
+        rotation: "58.6일 (3:2 궤도공명)",
+        orbit: "88일",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Mercury_in_true_color.jpg?width=900",
+        imgTag: "NASA 메신저(MESSENGER) 탐사선 촬영",
+        desc: "<p>태양에서 가장 가까운 행성으로 대기가 거의 없어 낮에는 430℃까지 치솟고 밤에는 -180℃까지 곤두박질치는 극심한 온도차를 겪습니다.</p><p><strong>망원경 관측:</strong> 태양에 매우 가깝기 때문에 해가 진 직후 서쪽 하늘이나 일출 직전 동쪽 하늘 낮은 지평선에서만 잠깐 볼 수 있으며, 달처럼 위상이 초승달-반달 모양으로 변하는 것을 확인할 수 있습니다.</p>",
+        moonsCount: "위성 0개 (자연위성 없음)",
+        moons: [
+          {
+            name: "자연 위성 없음 (No Moons)",
+            desc: "수성은 태양과 너무 가깝기 때문에 태양의 강력한 중력 기조력으로 인해 안정적인 위성 궤도를 유지할 수 없어 위성이 존재하지 않습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Mercury_in_true_color.jpg?width=300"
+          }
+        ]
+      },
+
+      // 2. Venus (금성)
+      venus: {
+        id: "venus",
+        name: "금성 (Venus)",
+        type: "태양계 제2행성",
+        color: "#fef08a",
+        size: 7,
+        ra: 16.2,
+        dec: -20.5,
+        diameter: "12,104 km (지구의 95%)",
+        distance: "약 4,000만 km ~ 2억 5,000만 km",
+        rotation: "243일 (역행 자전)",
+        orbit: "224.7일",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Venus_in_real_color.jpg?width=900",
+        imgTag: "메신저 탐사선 촬영 (가시광선 컬러)",
+        desc: "<p>밤하늘에서 달 다음으로 가장 밝게 빛나 '샛별' 또는 '개밥바라기'로 불립니다. 96% 이상의 짙은 이산화탄소 대기와 황산 구름으로 인한 극심한 온실효과로 표면 온도가 약 465℃에 달합니다.</p><p><strong>망원경 관측:</strong> 짙은 구름으로 표면 무늬는 보이지 않지만, 지구-금성-태양의 기하학적 위치에 따라 눈부시게 아름다운 초승달, 반달, 보름달 모양의 위상 변화를 망원경으로 뚜렷이 볼 수 있습니다.</p>",
+        moonsCount: "위성 0개 (자연위성 없음)",
+        moons: [
+          {
+            name: "자연 위성 없음 (No Moons)",
+            desc: "금성 역시 태양과 가깝고 과거 거대한 천체 충돌로 자전 속도가 극도로 느려져 자전축이 뒤집힌(역행 자전) 역사를 가지며 위성을 거느리지 못했습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Venus_in_real_color.jpg?width=300"
+          }
+        ]
+      },
+
+      // 3. Moon (달)
+      moon: {
+        id: "moon",
+        name: "달 (The Moon)",
+        type: "지구의 유일한 자연위성",
+        color: "#fef08a",
+        size: 11,
+        ra: 21.0,
+        dec: -10.0,
+        diameter: "3,474 km (지구의 27%)",
+        distance: "평균 384,400 km",
+        rotation: "27.3일 (동주기 자전)",
+        orbit: "27.3일",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/FullMoon2010.jpg",
+        imgTag: "고해상도 천체망원경 촬영",
+        desc: "<p>인류가 직접 발을 디딘 유일한 외계 천체입니다. 지구와 조석 고정(Tidal Locking)되어 있어 항상 지구를 향해 같은 면만을 보여줍니다.</p><p>어두운 '바다(Mare)'는 고대 거대 소행성 충돌 후 솟아오른 현무암 용암 평원이며, 밝은 '육지(Terrae)'는 40억 년 이상의 원시 사장석 암석으로 수많은 충돌구를 간직하고 있습니다.</p>",
+        moonsCount: "지구의 동반자",
+        moons: [
+          {
+            name: "동주기 자전의 신비",
+            desc: "지구의 조석력으로 자전 주기와 공전 주기가 27.3일로 완전히 일치하여, 지구에서는 언제나 달의 앞면만 볼 수 있습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Back_side_of_the_Moon_AS16-3021.jpg"
+          }
+        ]
+      },
+
+      // 4. Mars (화성)
+      mars: {
+        id: "mars",
+        name: "화성 (Mars)",
+        type: "태양계 제4행성 (붉은 행성)",
+        color: "#f87171",
+        size: 6,
+        ra: 5.5,
+        dec: 24.0,
+        diameter: "6,779 km (지구의 53%)",
+        distance: "약 5,500만 km ~ 4억 km",
+        rotation: "24시간 37분 (지구와 유사)",
+        orbit: "687일 (약 1.9년)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/OSIRIS_Mars_true_color.jpg?width=900",
+        imgTag: "ESA 로제타(Rosetta) 탐사선 촬영",
+        desc: "<p>표면에 산화철(녹슨 철) 성분이 풍부하여 붉게 빛나는 행성입니다. 태양계 최대 화산인 올림포스산(높이 25km)과 거대한 매리너 협곡(길이 4,000km)을 품고 있습니다.</p><p><strong>망원경 관측:</strong> 소구경 망원경으로도 극지방의 하얀 얼음과 드라이아이스로 뒤덮인 <strong>극관(Polar Ice Cap)</strong>과 거대한 검은 암석 지형을 식별할 수 있습니다.</p>",
+        moonsCount: "위성 2개 (포보스, 데이모스)",
+        moons: [
+          {
+            name: "포보스 (Phobos - 공포)",
+            desc: "지름 약 22km의 감자 모양 불규칙 소행성 포획 위성으로, 화성 표면에서 불과 6,000km 상공을 하루에 세 번 공전합니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Phobos_colour_2008.jpg?width=300"
+          },
+          {
+            name: "데이모스 (Deimos - 패배)",
+            desc: "지름 약 12km의 작은 위성으로 매끄러운 표면을 가졌으며 서서히 화성 궤도를 벗어나고 있습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Deimos-MRO.jpg?width=300"
+          }
+        ]
+      },
+
+      // 5. Jupiter (목성)
+      jupiter: {
+        id: "jupiter",
+        name: "목성 (Jupiter)",
+        type: "태양계 제5행성 (가장 거대한 가스 행성)",
+        color: "#fb923c",
+        size: 9,
+        ra: 3.8,
+        dec: 19.5,
+        diameter: "139,820 km (지구의 11배)",
+        distance: "약 6억 ~ 9억 6,000만 km",
+        rotation: "9시간 55분 (초고속 자전)",
+        orbit: "11.86년",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Jupiter_and_its_shrunken_Great_Red_Spot.jpg?width=900",
+        imgTag: "NASA 허블우주망원경 촬영",
+        desc: "<p>태양계 모든 행성의 질량을 합친 것보다 2.5배 무거운 거인 행성입니다. 9시간 55분의 극도로 빠른 자전 속도 때문에 적도 부근이 옆으로 불룩하며, 대기에는 짙고 옅은 줄무늬(대와 대)가 발달해 있습니다.</p><p><strong>대적점 (Great Red Spot):</strong> 목성 남반구에 위치한 지구가 통째로 들어갈 만큼 거대한 고기압성 폭풍으로, 350년 이상 소용돌이치고 있습니다.</p>",
+        moonsCount: "공식 위성 95개 (갈릴레이 4대 위성 포함)",
+        moons: [
+          {
+            name: "이오 (Io) - 화산의 위성",
+            desc: "목성의 극심한 조석 마찰열로 인해 400개 이상의 활화산이 유황을 수백 km 높이로 뿜어내는 태양계에서 가장 화산활동이 격렬한 천체입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Io_highest_resolution_true_color.jpg?width=300"
+          },
+          {
+            name: "유로파 (Europa) - 지하 바다",
+            desc: "매끄러운 얼음 표면 아래 깊이 100km의 거대한 액체 바다가 존재하여 외계 생명체 탐사의 1순위 후보로 꼽힙니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Europa-moon-remastered.jpg?width=300"
+          },
+          {
+            name: "가니메데 (Ganymede) - 최대 위성",
+            desc: "지름 5,268km로 수성보다 크며, 태양계 위성 중 유일하게 자체 자기장을 보유하고 있습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ganymede_g1_true.jpg?width=300"
+          },
+          {
+            name: "칼리스토 (Callisto) - 고대 충돌구",
+            desc: "수많은 소행성 충돌 흔적을 간직한 원시 얼음 위성으로 지질학적으로 가장 비활성 상태를 유지하고 있습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Callisto.jpg?width=300"
+          }
+        ]
+      },
+
+      // 6. Saturn (토성)
+      saturn: {
+        id: "saturn",
+        name: "토성 (Saturn)",
+        type: "태양계 제6행성 (아름다운 고리의 제왕)",
+        color: "#fde047",
+        size: 8.5,
+        ra: 22.8,
+        dec: -9.5,
+        diameter: "116,460 km (지구의 9.4배)",
+        distance: "약 13억 5,000만 ~ 15억 km",
+        rotation: "10시간 33분",
+        orbit: "29.45년",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Saturn_during_Equinox.jpg?width=900",
+        imgTag: "NASA 카시니(Cassini) 탐사선 촬영",
+        desc: "<p><strong>토성 고리의 구성 물질:</strong> 고리의 폭은 약 28만 km에 달하지만 두께는 고작 10~100m에 불과합니다. 구성 물질의 99% 이상이 <strong>순수한 물 얼음(H₂O) 알갱이</strong>와 약간의 암석 먼지입니다. 크기는 미세한 눈송이부터 수 미터 크기의 빙산 덩어리까지 다양합니다.</p><p><strong>15년 주기 고리 기울기 변화:</strong> 토성의 자전축은 약 26.7° 기울어져 있어 29.5년의 공전 주기 동안 약 15년마다 지구의 시선 방향과 고리면이 완전히 일치합니다. 이때 두께가 너무 얇아 지구에서는 고리가 마법처럼 사라지는 <strong>'고리 소실(Ring Crossing)'</strong> 현상이 일어납니다 (2025~2026년 진행 중!).</p>",
+        moonsCount: "공식 위성 146개 (태양계 최다 위성 보유)",
+        moons: [
+          {
+            name: "타이탄 (Titan) - 짙은 대기의 위성",
+            desc: "수성보다 큰 거대 위성으로 짙은 질소 대기를 가지며, 액체 메탄과 에탄으로 이루어진 강과 호수가 흐르는 독특한 천체입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Titan_in_true_color.jpg?width=300"
+          },
+          {
+            name: "엔켈라두스 (Enceladus) - 얼음 간헐천",
+            desc: "남극의 얼음 갈라진 틈에서 지하 바다의 수증기와 유기물 간헐천을 우주 공간으로 수백 km 분출하는 생명체 유력 후보입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Enceladus_stripes_cassini.jpg?width=300"
+          },
+          {
+            name: "레아 (Rhea) - 얼음 암석 위성",
+            desc: "순수 얼음과 암석으로 이루어진 토성에서 두 번째로 큰 위성으로 크레이터가 빽빽합니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/PIA07763_Rhea_full_globe.jpg?width=300"
+          }
+        ]
+      },
+
+      // 7. Uranus (천왕성)
+      uranus: {
+        id: "uranus",
+        name: "천왕성 (Uranus)",
+        type: "태양계 제7행성 (얼음 거인)",
+        color: "#5eead4",
+        size: 5,
+        ra: 3.2,
+        dec: 17.5,
+        diameter: "50,724 km (지구의 4배)",
+        distance: "약 27억 ~ 30억 km",
+        rotation: "17시간 14분 (98° 누워서 자전)",
+        orbit: "84년",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Uranus2.jpg?width=900",
+        imgTag: "NASA 보이저 2호(Voyager 2) 촬영",
+        desc: "<p>대기 중의 메탄가스가 붉은빛을 흡수하고 푸른빛을 강하게 산란시켜 청록색 에메랄드 보석처럼 빛납니다. 자전축이 약 98° 기울어져 있어 공전 궤도면 위에 사실상 옆으로 누워서 데굴데굴 구르며 공전합니다.</p><p><strong>망원경 관측:</strong> 배율 150배 이상의 망원경으로 보면 단순한 별빛 점이 아니라 은은한 청록색의 작은 원반(Disk) 모양으로 뚜렷하게 관측됩니다.</p>",
+        moonsCount: "위성 28개",
+        moons: [
+          {
+            name: "미란다 (Miranda) - 프랑켄슈타인 위성",
+            desc: "과거 산산조각 났다가 다시 중력으로 뭉친 듯 20km 절벽과 기괴한 협곡 지형이 얽혀 있는 독특한 위성입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Miranda.jpg?width=300"
+          },
+          {
+            name: "티타니아 (Titania) - 천왕성 최대 위성",
+            desc: "지름 1,578km로 천왕성 위성 중 가장 크며 거대한 단층 계곡으로 뒤덮여 있습니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Titania_(moon)_color.jpg?width=300"
+          }
+        ]
+      },
+
+      // 8. Neptune (해왕성)
+      neptune: {
+        id: "neptune",
+        name: "해왕성 (Neptune)",
+        type: "태양계 제8행성 (가장 먼 푸른 행성)",
+        color: "#60a5fa",
+        size: 4.8,
+        ra: 23.9,
+        dec: -2.0,
+        diameter: "49,244 km (지구의 3.9배)",
+        distance: "약 43억 ~ 45억 km",
+        rotation: "16시간 6분",
+        orbit: "164.8년",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Neptune_Full.jpg?width=900",
+        imgTag: "NASA 보이저 2호 촬영",
+        desc: "<p>태양계 가장 바깥쪽을 도는 짙은 사파이어 블루빛 행성입니다. 태양빛이 매우 약하지만 내부 열에너지로 인해 시속 2,100km가 넘는 태양계에서 가장 빠른 초음속 대기 폭풍이 휘몰아칩니다.</p><p><strong>망원경 관측:</strong> 8등급 정도로 어두워 쌍안경이나 망원경으로 관측해야 하며, 고배율에서 은은하고 신비로운 짙은 푸른빛 점으로 확인됩니다.</p>",
+        moonsCount: "위성 16개",
+        moons: [
+          {
+            name: "트리톤 (Triton) - 역행 공전 위성",
+            desc: "행성의 자전 방향과 반대로 도는 역행 위성으로 카이퍼벨트에서 포획된 천체이며, 영하 235℃에서 질소 얼음 간헐천을 뿜어냅니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Triton_moon_mosaic_Voyager_2_(large).jpg?width=300"
+          }
+        ]
+      },
+
+      // 9. Andromeda Galaxy (M31)
+      m31: {
+        id: "m31",
+        name: "안드로메다 은하 (M31)",
+        type: "나선은하 (우리은하의 이웃 거대은하)",
+        color: "#c084fc",
+        size: 8,
+        ra: 0.7,
+        dec: 41.3,
+        diameter: "약 22만 광년 (별 1조 개)",
+        distance: "약 250만 광년",
+        rotation: "나선팔 자전",
+        orbit: "우리은하와 초속 110km로 접근 중",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Andromeda_Galaxy_(with_h-alpha).jpg?width=900",
+        imgTag: "천문대 및 허블 합성 사진",
+        desc: "<p>인간의 맨눈으로 볼 수 있는 가장 먼 우주 천체입니다. 우리은하와 국부은하군을 양분하고 있는 거대 나선은하로, 약 45억 년 뒤 우리은하와 충돌하여 하나의 거대한 타원은하(밀코메다)로 합쳐질 예정입니다.</p><p><strong>망원경 관측:</strong> 소구경 망원경으로도 밝은 은하 중심 핵과 뿌연 타원형 타원 가스 구름이 신비롭게 보입니다.</p>",
+        moonsCount: "위성은하 보유",
+        moons: [
+          {
+            name: "M32 & M110 위성은하",
+            desc: "안드로메다 은하 바로 곁을 공전하고 있는 작은 왜소 타원은하들로 망원경 시야에 함께 들어옵니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/M32_Hubble.jpg?width=300"
+          }
+        ]
+      },
+
+      // 10. Orion Nebula (M42)
+      m42: {
+        id: "m42",
+        name: "오리온 대성운 (M42)",
+        type: "발광/반사 성운 (별들의 요람)",
+        color: "#f472b6",
+        size: 9,
+        ra: 5.6,
+        dec: -5.4,
+        diameter: "지름 약 24광년",
+        distance: "약 1,344 광년",
+        rotation: "가스 팽창 운동",
+        orbit: "오리온자리 팔 내부",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg?width=900",
+        imgTag: "NASA/ESA 허블우주망원경 모자이크",
+        desc: "<p>밤하늘에서 가장 아름다운 가스 성운이자 새로운 아기 별들이 태어나는 '별의 요람'입니다. 성운 중심부에는 갓 태어난 4개의 거대한 청색 O형 별들이 만드는 <strong>트라페지움(사다리꼴 성단)</strong>이 강한 자외선을 뿜어 수소 가스를 영롱하게 빛나게 만듭니다.</p><p><strong>망원경 관측:</strong> 작은 망원경으로도 새의 날개 모양으로 펼쳐진 신비로운 녹백색 가스 구름과 트라페지움 4개 별을 또렷하게 관측할 수 있습니다.</p>",
+        moonsCount: "성운 내부 천체",
+        moons: [
+          {
+            name: "트라페지움 (Trapezium)",
+            desc: "성운 중심에서 강렬한 자외선을 방출하여 성운 전체를 빛나게 하는 젊은 거대 별 4개 군집입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Orion_Trapezium_Cluster.jpg?width=300"
+          }
+        ]
+      },
+
+      // 11. Pleiades Cluster (M45)
+      m45: {
+        id: "m45",
+        name: "플레이아데스 산개성단 (M45, 좀생이별)",
+        type: "젊은 산개성단 (황소자리)",
+        color: "#38bdf8",
+        size: 10,
+        ra: 3.8,
+        dec: 24.1,
+        diameter: "지름 약 15광년",
+        distance: "약 444 광년",
+        rotation: "성단 고유운동",
+        orbit: "우리은하 원반",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Pleiades_large.jpg?width=900",
+        imgTag: "고해상도 천체망원경 장노출 사진",
+        desc: "<p>육안으로도 6~7개의 푸른 별이 오밀조밀 모여 있는 것이 보여 '좀생이별' 또는 '칠자매별'이라 불립니다. 태어난 지 약 1억 년밖에 되지 않은 젊고 뜨거운 푸른 별들로 이루어져 있습니다.</p><p><strong>망원경 관측:</strong> 배율이 높은 망원경보다는 <strong>저배율 광시야 접안렌즈나 쌍안경</strong>으로 보아야 시야에 한가득 흩뿌려진 다이아몬드 가루 같은 환상적인 별 무리를 감상할 수 있습니다.</p>",
+        moonsCount: "1,000개 이상의 별",
+        moons: [
+          {
+            name: "반사 성운 가스 구름",
+            desc: "성단 별들의 푸른빛이 주변을 지나가는 성간 먼지 구름에 반사되어 영롱한 푸른 베일 장막을 만듭니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Pleiades_large.jpg?width=300"
+          }
+        ]
+      },
+
+      // 12. Ring Nebula (M57)
+      m57: {
+        id: "m57",
+        name: "고리성운 (M57, Ring Nebula)",
+        type: "행성상성운 (거문고자리)",
+        color: "#34d399",
+        size: 7.5,
+        ra: 18.9,
+        dec: 33.0,
+        diameter: "지름 약 1광년",
+        distance: "약 2,570 광년",
+        rotation: "가스 팽창 (초속 20km)",
+        orbit: "우리은하",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/M57_The_Ring_Nebula.jpg?width=900",
+        imgTag: "NASA 허블우주망원경 촬영",
+        desc: "<p>태양과 같은 질량의 별이 생의 마지막에 외곽 가스층을 우주로 방출하며 형성된 대표적인 행성상성운입니다. 중심에는 표면온도 10만 도 이상의 뜨거운 백색왜성이 홀로 남아 있습니다.</p><p><strong>망원경 관측:</strong> 소형 망원경으로 보면 연기 고리나 도넛처럼 동그란 가스 링이 신비롭게 관측됩니다.</p>",
+        moonsCount: "중심 백색왜성 1개",
+        moons: [
+          {
+            name: "중심 백색왜성 (White Dwarf)",
+            desc: "과거 별의 핵이었던 초고밀도 천체로 자외선을 방출하여 성운을 형광등처럼 빛나게 합니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/M57_The_Ring_Nebula.jpg?width=300"
+          }
+        ]
+      },
+
+      // 13. Hercules Globular Cluster (M13)
+      m13: {
+        id: "m13",
+        name: "헤라클레스 대구상성단 (M13)",
+        type: "구상성단 (헤라클레스자리)",
+        color: "#fde047",
+        size: 8.5,
+        ra: 16.7,
+        dec: 36.4,
+        diameter: "지름 약 145 광년",
+        distance: "약 22,200 광년",
+        rotation: "성단 자전",
+        orbit: "우리은하 헤일로",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/M13_Hubble_remastered.jpg?width=900",
+        imgTag: "NASA/ESA 허블우주망원경 고해상도",
+        desc: "<p>북반구 밤하늘에서 가장 장엄한 구상성단으로, 약 120억 년의 나이를 가진 30만 개 이상의 고대 별들이 강력한 중력으로 공 모양을 이루고 있습니다.</p><p><strong>망원경 관측:</strong> 4인치 이상 망원경으로 보면 눈부신 설탕 가루를 흩뿌려 놓은 듯 중심부 별들이 분리되어 찬란한 장관을 연출합니다.</p>",
+        moonsCount: "별 30만 개 밀집",
+        moons: [
+          {
+            name: "아레시보 전파 메시지 전송지",
+            desc: "1974년 칼 세이건 등이 외계 지적 생명체를 향해 전송한 아레시보 메시지의 목적지입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/M13_Hubble_remastered.jpg?width=300"
+          }
+        ]
+      },
+
+      // 14. Leo Triplet (사자자리 삼중은하)
+      leo_triplet: {
+        id: "leo_triplet",
+        name: "사자자리 삼중 은하 (Leo Triplet)",
+        type: "나선은하단 (M65, M66, NGC 3628)",
+        color: "#a78bfa",
+        size: 8,
+        ra: 11.3,
+        dec: 13.1,
+        diameter: "약 3,500만 광년 거리",
+        distance: "약 3,500만 광년",
+        rotation: "은하 간 중력 상호작용",
+        orbit: "사자자리 은하단",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Leo_Triplet_by_VST.jpg?width=900",
+        imgTag: "ESO VST 초거대 망원경 촬영",
+        desc: "<p>서로의 중력으로 조석 꼬리를 형성하며 상호작용하는 아름다운 3개의 나선은하 군집입니다. 봄철 망원경 저배율 시야에 3개의 은하가 한꺼번에 들어오는 것으로 유명합니다.</p>",
+        moonsCount: "은하 3개 군집",
+        moons: [
+          {
+            name: "NGC 3628 (햄버거 은하)",
+            desc: "두꺼운 암흑 먼지 띠가 적도를 가로질러 햄버거 패티처럼 보이는 웅장한 측면 은하입니다.",
+            img: "https://commons.wikimedia.org/wiki/Special:FilePath/Leo_Triplet_by_VST.jpg?width=300"
+          }
+        ]
+      }
+    };
+
+    // Major Bright Fixed Stars Catalog
+    const brightStars = [
+      { name: "북극성 (Polaris)", ra: 2.5, dec: 89.3, mag: 1.98, color: "#fef08a" },
+      { name: "시리우스 (Sirius)", ra: 6.75, dec: -16.7, mag: -1.46, color: "#93c5fd" },
+      { name: "베가 (직녀성, Vega)", ra: 18.6, dec: 38.8, mag: 0.03, color: "#67e8f9" },
+      { name: "알타이르 (견우성, Altair)", ra: 19.8, dec: 8.9, mag: 0.77, color: "#ffffff" },
+      { name: "데네브 (Deneb)", ra: 20.7, dec: 45.3, mag: 1.25, color: "#f8fafc" },
+      { name: "베텔게우스 (Betelgeuse)", ra: 5.9, dec: 7.4, mag: 0.5, color: "#f87171" },
+      { name: "리겔 (Rigel)", ra: 5.2, dec: -8.2, mag: 0.18, color: "#7dd3fc" },
+      { name: "아크투루스 (Arcturus)", ra: 14.3, dec: 19.2, mag: -0.05, color: "#fb923c" },
+      { name: "스피카 (Spica)", ra: 13.4, dec: -11.2, mag: 0.98, color: "#93c5fd" },
+      { name: "카펠라 (Capella)", ra: 5.3, dec: 46.0, mag: 0.08, color: "#fef08a" },
+      { name: "알데바란 (Aldebaran)", ra: 4.6, dec: 16.5, mag: 0.85, color: "#fb923c" },
+      { name: "레굴루스 (Regulus)", ra: 10.1, dec: 12.0, mag: 1.36, color: "#bfdbfe" },
+      { name: "안타레스 (Antares)", ra: 16.5, dec: -26.4, mag: 1.06, color: "#ef4444" },
+      { name: "폴룩스 (Pollux)", ra: 7.75, dec: 28.0, mag: 1.15, color: "#fcd34d" },
+      { name: "카스토르 (Castor)", ra: 7.58, dec: 31.9, mag: 1.58, color: "#bae6fd" },
+      { name: "알페라츠 (Alpheratz)", ra: 0.14, dec: 29.1, mag: 2.07, color: "#bfdbfe" },
+      { name: "쉐아트 (Scheat)", ra: 23.06, dec: 28.1, mag: 2.44, color: "#f87171" },
+      { name: "마르카브 (Markab)", ra: 23.08, dec: 15.2, mag: 2.49, color: "#93c5fd" },
+      { name: "알게니브 (Algenib)", ra: 0.22, dec: 15.2, mag: 2.84, color: "#e2e8f0" }
+    ];
+
+    // Constellation lines grouped by Season
+    const constellationLines = [
+      // Summer: Summer Triangle & Cygnus
+      ["베가 (직녀성, Vega)", "알타이르 (견우성, Altair)"],
+      ["알타이르 (견우성, Altair)", "데네브 (Deneb)"],
+      ["데네브 (Deneb)", "베가 (직녀성, Vega)"],
+      // Autumn: Pegasus Great Square
+      ["마르카브 (Markab)", "쉐아트 (Scheat)"],
+      ["쉐아트 (Scheat)", "알페라츠 (Alpheratz)"],
+      ["알페라츠 (Alpheratz)", "알게니브 (Algenib)"],
+      ["알게니브 (Algenib)", "마르카브 (Markab)"],
+      // Winter: Orion & Winter Triangle
+      ["베텔게우스 (Betelgeuse)", "리겔 (Rigel)"],
+      ["베텔게우스 (Betelgeuse)", "시리우스 (Sirius)"],
+      ["알데바란 (Aldebaran)", "카펠라 (Capella)"],
+      // Spring: Leo & Spring Curve
+      ["레굴루스 (Regulus)", "스피카 (Spica)"],
+      ["스피카 (Spica)", "아크투루스 (Arcturus)"],
+      // Gemini
+      ["카스토르 (Castor)", "폴룩스 (Pollux)"]
+    ];
+
+    // Constellation Title Centroids
+    const constellationLabels = [
+      { name: "백조자리 (Cygnus)", ra: 20.6, dec: 42.0 },
+      { name: "거문고자리 (Lyra)", ra: 18.7, dec: 36.0 },
+      { name: "독수리자리 (Aquila)", ra: 19.8, dec: 5.0 },
+      { name: "페가수스자리 (Pegasus)", ra: 23.2, dec: 20.0 },
+      { name: "안드로메다자리 (Andromeda)", ra: 0.8, dec: 38.0 },
+      { name: "오리온자리 (Orion)", ra: 5.5, dec: 0.0 },
+      { name: "황소자리 (Taurus)", ra: 4.5, dec: 18.0 },
+      { name: "사자자리 (Leo)", ra: 10.6, dec: 15.0 },
+      { name: "쌍둥이자리 (Gemini)", ra: 7.5, dec: 28.0 }
+    ];
+
+    // ---------------------------------------------------------------------------
+    // Celestial Mechanics & Coordinate Calculations
+    // ---------------------------------------------------------------------------
+    function getJulianDate(date) {
+      return (date.getTime() / 86400000) + 2440587.5;
+    }
+
+    function getLocalSiderealTime(date, lonDeg) {
+      const jd = getJulianDate(date);
+      const d = jd - 2451545.0;
+      let gmst = 18.697374558 + 24.06570982441908 * d;
+      gmst = ((gmst % 24) + 24) % 24;
+      let lst = gmst + (lonDeg / 15.0);
+      lst = ((lst % 24) + 24) % 24;
+      return lst; // in hours
+    }
+
+    function raDecToAltAz(raHours, decDeg, date, latDeg, lonDeg) {
+      const lstHours = getLocalSiderealTime(date, lonDeg);
+      let haHours = lstHours - raHours;
+      haHours = ((haHours % 24) + 24) % 24;
+      
+      const haRad = (haHours * 15) * (Math.PI / 180);
+      const decRad = decDeg * (Math.PI / 180);
+      const latRad = latDeg * (Math.PI / 180);
+
+      // Altitude
+      const sinAlt = Math.sin(decRad) * Math.sin(latRad) + Math.cos(decRad) * Math.cos(latRad) * Math.cos(haRad);
+      const altRad = Math.asin(sinAlt);
+      const altDeg = altRad * (180 / Math.PI);
+
+      // Azimuth
+      const cosAz = (Math.sin(decRad) - Math.sin(latRad) * Math.sin(altRad)) / (Math.cos(latRad) * Math.cos(altRad));
+      let azRad = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+      if (Math.sin(haRad) > 0) {
+        azRad = 2 * Math.PI - azRad;
+      }
+      const azDeg = (azRad * (180 / Math.PI) + 180) % 360; // 0=North, 90=East, 180=South, 270=West
+
+      return { alt: altDeg, az: azDeg };
+    }
+
+    // ---------------------------------------------------------------------------
+    // Canvas Sky Rendering Engine with Fixed Horizon
+    // ---------------------------------------------------------------------------
+    const skyCanvas = document.getElementById('sky-canvas');
+    const skyCtx = skyCanvas.getContext('2d');
+    let canvasW = 800;
+    let canvasH = 600;
+
+    function resizeCanvas() {
+      const rect = skyCanvas.parentElement.getBoundingClientRect();
+      canvasW = rect.width;
+      canvasH = rect.height;
+      skyCanvas.width = canvasW * window.devicePixelRatio;
+      skyCanvas.height = canvasH * window.devicePixelRatio;
+      skyCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawSky();
+    }
+
+    // Convert Alt/Az to Canvas coordinates (x, y) with Fixed Horizon
+    function projectAltAzToCanvas(alt, az) {
+      if (currentViewDirection === 'all') {
+        // Planisphere 360° All-Sky Dome Projection
+        const cx = (canvasW / 2) + panX;
+        const cy = (canvasH / 2) + panY;
+        const rMax = (Math.min(canvasW, canvasH) * 0.44) * zoomLevel;
+        
+        // 90° alt is center, 0° alt is rim
+        const r = rMax * (1 - Math.max(0, alt) / 90);
+        const theta = (az - 90) * (Math.PI / 180); // Rotate so North is up
+        return {
+          x: cx + r * Math.cos(theta),
+          y: cy + r * Math.sin(theta),
+          visible: alt >= -5
+        };
+      } else {
+        // Horizon Directional View (E, S, W, N) with FIXED HORIZON
+        let centerAz = 0;
+        if (currentViewDirection === 'E') centerAz = 90;
+        if (currentViewDirection === 'S') centerAz = 180;
+        if (currentViewDirection === 'W') centerAz = 270;
+        if (currentViewDirection === 'N') centerAz = 0;
+
+        // Apply interactive horizontal pan offset (azimuth rotation)
+        const effectiveCenterAz = (centerAz + directionalAzOffset + 360) % 360;
+
+        let diffAz = az - effectiveCenterAz;
+        while (diffAz > 180) diffAz -= 360;
+        while (diffAz < -180) diffAz += 360;
+
+        const fovDeg = 90 / zoomLevel;
+        const x = (canvasW / 2) + (diffAz / (fovDeg / 2)) * (canvasW / 2);
+        
+        // FIXED GROUND HORIZON AT 78% OF CANVAS HEIGHT
+        const fixedGroundY = canvasH * 0.78;
+        const effectiveAlt = alt + directionalAltOffset;
+        const y = fixedGroundY - (effectiveAlt / 90) * (fixedGroundY * 0.95);
+
+        return {
+          x: x,
+          y: y,
+          visible: Math.abs(diffAz) <= (fovDeg * 0.75) && effectiveAlt >= -2 && y <= fixedGroundY + 15
+        };
+      }
+    }
+
+    function drawSky() {
+      skyCtx.clearRect(0, 0, canvasW, canvasH);
+
+      // Background Sky Gradient
+      const skyGrad = skyCtx.createLinearGradient(0, 0, 0, canvasH);
+      if (isNightVision) {
+        skyGrad.addColorStop(0, '#0a0102');
+        skyGrad.addColorStop(1, '#1f0305');
+      } else {
+        skyGrad.addColorStop(0, '#030712');
+        skyGrad.addColorStop(0.5, '#081026');
+        skyGrad.addColorStop(0.85, '#0f172a');
+        skyGrad.addColorStop(1, '#1e293b');
+      }
+      skyCtx.fillStyle = skyGrad;
+      skyCtx.fillRect(0, 0, canvasW, canvasH);
+
+      // Atmospheric glow near the horizon in normal mode
+      if (!isNightVision && currentViewDirection !== 'all') {
+        const glowGrad = skyCtx.createRadialGradient(canvasW / 2, canvasH * 0.78, 50, canvasW / 2, canvasH * 0.78, canvasW * 0.75);
+        glowGrad.addColorStop(0, 'rgba(30, 58, 138, 0.25)');
+        glowGrad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+        skyCtx.fillStyle = glowGrad;
+        skyCtx.fillRect(0, 0, canvasW, canvasH * 0.78);
+      }
+
+      // 1. Draw Constellation Connecting Lines
+      if (showConstellations) {
+        skyCtx.strokeStyle = isNightVision ? 'rgba(239, 68, 68, 0.35)' : 'rgba(147, 197, 253, 0.35)';
+        skyCtx.lineWidth = 1.4;
+        skyCtx.setLineDash([4, 4]);
+
+        const starPosMap = {};
+        brightStars.forEach(s => {
+          const coord = raDecToAltAz(s.ra, s.dec, observationDate, currentLat, currentLon);
+          starPosMap[s.name] = projectAltAzToCanvas(coord.alt, coord.az);
+        });
+
+        constellationLines.forEach(pair => {
+          const p1 = starPosMap[pair[0]];
+          const p2 = starPosMap[pair[1]];
+          if (p1 && p2 && p1.visible && p2.visible) {
+            skyCtx.beginPath();
+            skyCtx.moveTo(p1.x, p1.y);
+            skyCtx.lineTo(p2.x, p2.y);
+            skyCtx.stroke();
+          }
+        });
+        skyCtx.setLineDash([]);
+      }
+
+      // 2. Draw Constellation Names Centroids
+      if (showConstellationNames) {
+        skyCtx.font = "bold 11px Pretendard";
+        skyCtx.fillStyle = isNightVision ? "rgba(248, 113, 113, 0.7)" : "rgba(147, 197, 253, 0.65)";
+        skyCtx.textAlign = "center";
+        constellationLabels.forEach(c => {
+          const coord = raDecToAltAz(c.ra, c.dec, observationDate, currentLat, currentLon);
+          const pos = projectAltAzToCanvas(coord.alt, coord.az);
+          if (pos.visible) {
+            skyCtx.fillText(`[ ${c.name} ]`, pos.x, pos.y);
+          }
+        });
+      }
+
+      // 3. Draw Bright Fixed Stars
+      brightStars.forEach(star => {
+        const coord = raDecToAltAz(star.ra, star.dec, observationDate, currentLat, currentLon);
+        const pos = projectAltAzToCanvas(coord.alt, coord.az);
+        if (pos.visible) {
+          const radius = Math.max(2, (3.8 - star.mag * 0.7) * (currentViewDirection === 'all' ? 1 : 1.3));
+          
+          skyCtx.beginPath();
+          skyCtx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+          skyCtx.fillStyle = isNightVision ? '#f87171' : star.color;
+          skyCtx.shadowColor = isNightVision ? '#ef4444' : star.color;
+          skyCtx.shadowBlur = 8;
+          skyCtx.fill();
+          skyCtx.shadowBlur = 0;
+
+          // Star label
+          skyCtx.font = "10px Pretendard";
+          skyCtx.fillStyle = isNightVision ? '#fca5a5' : '#cbd5e1';
+          skyCtx.textAlign = 'center';
+          skyCtx.fillText(star.name.split(' ')[0], pos.x, pos.y - radius - 3);
+        }
+      });
+
+      // 4. Draw Celestial Catalog Objects (Planets with Moons, Galaxies, Nebulae, Clusters)
+      Object.values(celestialCatalog).forEach(obj => {
+        const coord = raDecToAltAz(obj.ra, obj.dec, observationDate, currentLat, currentLon);
+        const pos = projectAltAzToCanvas(coord.alt, coord.az);
+        if (pos.visible) {
+          const r = obj.size * (currentViewDirection === 'all' ? 1.0 : 1.35) * zoomLevel;
+
+          // Distinctive Halo based on object type
+          skyCtx.beginPath();
+          skyCtx.arc(pos.x, pos.y, r * 1.8, 0, Math.PI * 2);
+          if (obj.type.includes('은하')) {
+            skyCtx.fillStyle = isNightVision ? 'rgba(239, 68, 68, 0.2)' : 'rgba(192, 132, 252, 0.25)';
+          } else if (obj.type.includes('성운')) {
+            skyCtx.fillStyle = isNightVision ? 'rgba(239, 68, 68, 0.2)' : 'rgba(244, 114, 182, 0.25)';
+          } else if (obj.type.includes('성단')) {
+            skyCtx.fillStyle = isNightVision ? 'rgba(239, 68, 68, 0.2)' : 'rgba(56, 189, 248, 0.25)';
+          } else {
+            skyCtx.fillStyle = isNightVision ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.14)';
+          }
+          skyCtx.fill();
+
+          // Saturn Ring Drawing
+          if (obj.id === 'saturn') {
+            skyCtx.beginPath();
+            skyCtx.ellipse(pos.x, pos.y, r * 2.3, r * 0.75, -Math.PI / 10, 0, Math.PI * 2);
+            skyCtx.strokeStyle = isNightVision ? '#ef4444' : '#fef08a';
+            skyCtx.lineWidth = 2.2;
+            skyCtx.stroke();
+          }
+
+          // Main Body Disk
+          skyCtx.beginPath();
+          skyCtx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+          skyCtx.fillStyle = isNightVision ? '#ef4444' : obj.color;
+          skyCtx.fill();
+
+          // Object Label
+          skyCtx.font = "bold 11px Pretendard";
+          skyCtx.fillStyle = isNightVision ? '#fca5a5' : '#fef08a';
+          skyCtx.textAlign = 'center';
+          skyCtx.fillText(obj.name.split(' ')[0], pos.x, pos.y + r + 13);
+
+          // NATURAL PLANETARY MOONS (목성 4대 위성 & 토성 타이탄)
+          if (obj.id === 'jupiter') {
+            const moonList = [
+              { name: "이오", dx: -22, dy: -3, color: "#fef08a" },
+              { name: "유로파", dx: -13, dy: -1.5, color: "#93c5fd" },
+              { name: "가니메데", dx: 14, dy: 2, color: "#e2e8f0" },
+              { name: "칼리스토", dx: 25, dy: 3.5, color: "#cbd5e1" }
+            ];
+            moonList.forEach(m => {
+              const mx = pos.x + m.dx * zoomLevel;
+              const my = pos.y + m.dy * zoomLevel;
+              skyCtx.beginPath();
+              skyCtx.arc(mx, my, 2.0, 0, Math.PI * 2);
+              skyCtx.fillStyle = isNightVision ? '#fca5a5' : m.color;
+              skyCtx.fill();
+              if (zoomLevel >= 1.3) {
+                skyCtx.font = "9px Pretendard";
+                skyCtx.fillStyle = isNightVision ? '#f87171' : '#cbd5e1';
+                skyCtx.fillText(m.name, mx, my - 5);
+              }
+            });
+          } else if (obj.id === 'saturn') {
+            const saturnMoons = [
+              { name: "엔켈라두스", dx: -18, dy: 5, color: "#ffffff" },
+              { name: "레아", dx: 20, dy: -6, color: "#e2e8f0" },
+              { name: "타이탄", dx: 34, dy: -10, color: "#fcd34d" }
+            ];
+            saturnMoons.forEach(m => {
+              const mx = pos.x + m.dx * zoomLevel;
+              const my = pos.y + m.dy * zoomLevel;
+              skyCtx.beginPath();
+              skyCtx.arc(mx, my, 2.0, 0, Math.PI * 2);
+              skyCtx.fillStyle = isNightVision ? '#fca5a5' : m.color;
+              skyCtx.fill();
+              if (zoomLevel >= 1.3) {
+                skyCtx.font = "9px Pretendard";
+                skyCtx.fillStyle = isNightVision ? '#f87171' : '#cbd5e1';
+                skyCtx.fillText(m.name, mx, my - 5);
+              }
+            });
+          }
+        }
+      });
+
+      // 5. Draw FIXED Ground Horizon Silhouette for Directional Views
+      if (currentViewDirection !== 'all') {
+        const fixedGroundY = canvasH * 0.78;
+
+        // Ground gradient fill
+        const groundGrad = skyCtx.createLinearGradient(0, fixedGroundY, 0, canvasH);
+        groundGrad.addColorStop(0, isNightVision ? '#2a0508' : '#090d16');
+        groundGrad.addColorStop(1, isNightVision ? '#120203' : '#020617');
+        skyCtx.fillStyle = groundGrad;
+        skyCtx.fillRect(0, fixedGroundY, canvasW, canvasH - fixedGroundY);
+
+        // Fixed Mountain & Hill Contours (firmly anchored at fixedGroundY)
+        skyCtx.beginPath();
+        skyCtx.moveTo(0, fixedGroundY);
+        skyCtx.quadraticCurveTo(canvasW * 0.2, fixedGroundY - 14, canvasW * 0.45, fixedGroundY - 4);
+        skyCtx.quadraticCurveTo(canvasW * 0.75, fixedGroundY + 8, canvasW, fixedGroundY - 6);
+        skyCtx.lineTo(canvasW, canvasH);
+        skyCtx.lineTo(0, canvasH);
+        skyCtx.closePath();
+        skyCtx.fillStyle = isNightVision ? '#180305' : '#050811';
+        skyCtx.fill();
+
+        // Fixed Horizon Boundary Line
+        skyCtx.beginPath();
+        skyCtx.moveTo(0, fixedGroundY);
+        skyCtx.lineTo(canvasW, fixedGroundY);
+        skyCtx.strokeStyle = isNightVision ? '#991b1b' : 'rgba(56, 189, 248, 0.5)';
+        skyCtx.lineWidth = 2.0;
+        skyCtx.stroke();
+
+        // Fixed Direction Indicator Label
+        skyCtx.font = "bold 15px Pretendard";
+        skyCtx.fillStyle = isNightVision ? '#f87171' : '#38bdf8';
+        skyCtx.textAlign = 'center';
+        const dirNames = {
+          E: '동쪽 지평선 (East) - 신비로운 천체 상승',
+          S: '남쪽 자오선 (South) - 최고의 남중 관측 고도',
+          W: '서쪽 지평선 (West) - 저무는 별자리 & 행성',
+          N: '북쪽 하늘 (North) - 북극성과 카시오페이아'
+        };
+        skyCtx.fillText(dirNames[currentViewDirection] || '', canvasW / 2, canvasH - 18);
+      } else {
+        // All-Sky Dome Ring Base
+        const cx = (canvasW / 2) + panX;
+        const cy = (canvasH / 2) + panY;
+        const rMax = (Math.min(canvasW, canvasH) * 0.44) * zoomLevel;
+
+        skyCtx.strokeStyle = isNightVision ? 'rgba(127, 29, 29, 0.4)' : 'rgba(56, 189, 248, 0.18)';
+        skyCtx.lineWidth = 1;
+        [0.33, 0.66].forEach(factor => {
+          skyCtx.beginPath();
+          skyCtx.arc(cx, cy, rMax * factor, 0, Math.PI * 2);
+          skyCtx.stroke();
+        });
+
+        // Outer horizon circle
+        skyCtx.beginPath();
+        skyCtx.arc(cx, cy, rMax, 0, Math.PI * 2);
+        skyCtx.strokeStyle = isNightVision ? '#7f1d1d' : 'rgba(56, 189, 248, 0.65)';
+        skyCtx.lineWidth = 2.5;
+        skyCtx.stroke();
+
+        // Cardinal Direction Labels
+        const cardinals = [
+          { text: '북 (N)', angle: -90 },
+          { text: '동 (E)', angle: 0 },
+          { text: '남 (S)', angle: 90 },
+          { text: '서 (W)', angle: 180 }
+        ];
+        skyCtx.font = "bold 13px Pretendard";
+        skyCtx.fillStyle = isNightVision ? '#f87171' : '#facc15';
+        skyCtx.textAlign = 'center';
+        skyCtx.textBaseline = 'middle';
+        cardinals.forEach(c => {
+          const rad = c.angle * (Math.PI / 180);
+          const lx = cx + (rMax + 20) * Math.cos(rad);
+          const ly = cy + (rMax + 20) * Math.sin(rad);
+          skyCtx.fillText(c.text, lx, ly);
+        });
+      }
+
+      // 6. Draw Telescope Reticle Simulator (Crosshairs)
+      if (showReticle) {
+        const rcx = canvasW / 2;
+        const rcy = canvasH / 2;
+        const reticleR = Math.min(canvasW, canvasH) * 0.38;
+
+        skyCtx.save();
+        skyCtx.strokeStyle = isNightVision ? '#ef4444' : 'rgba(56, 189, 248, 0.7)';
+        skyCtx.lineWidth = 1.5;
+
+        // Circular FOV Mask
+        skyCtx.beginPath();
+        skyCtx.arc(rcx, rcy, reticleR, 0, Math.PI * 2);
+        skyCtx.stroke();
+
+        // Crosshairs
+        skyCtx.beginPath();
+        skyCtx.moveTo(rcx - reticleR, rcy);
+        skyCtx.lineTo(rcx + reticleR, rcy);
+        skyCtx.moveTo(rcx, rcy - reticleR);
+        skyCtx.lineTo(rcx + reticleR, rcy);
+        skyCtx.setLineDash([6, 4]);
+        skyCtx.stroke();
+
+        skyCtx.font = "bold 11px font-mono";
+        skyCtx.fillStyle = isNightVision ? '#ef4444' : '#38bdf8';
+        skyCtx.textAlign = 'left';
+        skyCtx.fillText("망원경 100x 접안 시야 (FOV 0.5°)", rcx - reticleR + 10, rcy - reticleR + 20);
+        skyCtx.restore();
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // User Interaction & Drag / Zoom Event Handlers
+    // ---------------------------------------------------------------------------
+    skyCanvas.addEventListener('click', (e) => {
+      const rect = skyCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      let found = null;
+      let minDistance = 24; // Threshold radius
+
+      Object.values(celestialCatalog).forEach(obj => {
+        const coord = raDecToAltAz(obj.ra, obj.dec, observationDate, currentLat, currentLon);
+        const pos = projectAltAzToCanvas(coord.alt, coord.az);
+        if (pos.visible) {
+          const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
+          if (dist < minDistance) {
+            minDistance = dist;
+            found = obj;
+          }
+        }
+      });
+
+      if (found) {
+        if (found.id === 'moon') {
+          openMoonDetailModal();
+        } else {
+          openCelestialModal(found.id);
+        }
+      }
+    });
+
+    // Drag to Pan Controls (Horizontal Azimuth & Vertical Altitude Tilt)
+    skyCanvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      if (currentViewDirection === 'all') {
+        panX += dx;
+        panY += dy;
+      } else {
+        // Horizontal Azimuth Drag (360° rotation) - always available
+        directionalAzOffset -= (dx / canvasW) * (90 / zoomLevel);
+        directionalAzOffset = (directionalAzOffset + 360) % 360;
+
+        // Vertical Altitude Drag: ONLY enabled when zoomed in (zoomLevel > 1.05)
+        if (zoomLevel > 1.05) {
+          directionalAltOffset += (dy / canvasH) * (90 / zoomLevel);
+          directionalAltOffset = Math.max(-20, Math.min(55, directionalAltOffset));
+        } else {
+          directionalAltOffset = 0; // Lock vertical altitude when not zoomed in
+        }
+      }
+      drawSky();
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Touch Support for Mobile
+    skyCanvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    skyCanvas.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+
+      if (currentViewDirection === 'all') {
+        panX += dx;
+        panY += dy;
+      } else {
+        // Horizontal Azimuth Drag (360° rotation) - always available
+        directionalAzOffset -= (dx / canvasW) * (90 / zoomLevel);
+        directionalAzOffset = (directionalAzOffset + 360) % 360;
+
+        // Vertical Altitude Drag: ONLY enabled when zoomed in (zoomLevel > 1.05)
+        if (zoomLevel > 1.05) {
+          directionalAltOffset += (dy / canvasH) * (90 / zoomLevel);
+          directionalAltOffset = Math.max(-20, Math.min(55, directionalAltOffset));
+        } else {
+          directionalAltOffset = 0; // Lock vertical altitude when not zoomed in
+        }
+      }
+      drawSky();
+    }, { passive: true });
+
+    skyCanvas.addEventListener('touchend', () => { isDragging = false; });
+
+    // Mouse Wheel Zoom
+    skyCanvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      zoomSky(zoomFactor);
+    }, { passive: false });
+
+    function zoomSky(factor) {
+      zoomLevel = Math.max(0.7, Math.min(4.0, zoomLevel * factor));
+      if (currentViewDirection !== 'all' && zoomLevel <= 1.05) {
+        directionalAltOffset = 0; // Automatically return vertical tilt to horizon level
+      }
+      drawSky();
+    }
+
+    function resetSkyTransform() {
+      zoomLevel = 1.0;
+      panX = 0;
+      panY = 0;
+      directionalAzOffset = 0;
+      directionalAltOffset = 0;
+      drawSky();
+    }
+
+    function setViewDirection(dir) {
+      currentViewDirection = dir;
+      ['all', 'E', 'S', 'W', 'N'].forEach(d => {
+        const btn = document.getElementById(`tab-${d}`);
+        if (btn) {
+          if (d === dir) {
+            btn.className = "btn btn-xs sm:btn-sm join-item btn-primary font-bold";
+          } else {
+            btn.className = "btn btn-xs sm:btn-sm join-item btn-ghost font-bold";
+          }
+        }
+      });
+
+      const badge = document.getElementById('canvas-view-badge');
+      if (badge) {
+        const labels = {
+          all: '전체 하늘 (천구 전천 돔 투영)',
+          E: '동쪽 하늘 (East) - 떠오르는 천체',
+          S: '남쪽 하늘 (South) - 남중 자오선 최고 고도 관측',
+          W: '서쪽 하늘 (West) - 지는 별자리 & 행성',
+          N: '북쪽 하늘 (North) - 북극성과 카시오페이아'
+        };
+        badge.textContent = labels[dir] || '';
+      }
+
+      resetSkyTransform();
+    }
+
+    function toggleConstellationLines() {
+      showConstellations = !showConstellations;
+      const st = document.getElementById('const-line-status');
+      if (st) {
+        st.textContent = showConstellations ? 'ON' : 'OFF';
+        st.className = showConstellations ? 'badge badge-xs badge-primary' : 'badge badge-xs badge-ghost';
+      }
+      drawSky();
+    }
+
+    function toggleConstellationNames() {
+      showConstellationNames = !showConstellationNames;
+      const st = document.getElementById('const-name-status');
+      if (st) {
+        st.textContent = showConstellationNames ? 'ON' : 'OFF';
+        st.className = showConstellationNames ? 'badge badge-xs badge-primary' : 'badge badge-xs badge-ghost';
+      }
+      drawSky();
+    }
+
+    function toggleTelescopeReticle() {
+      showReticle = !showReticle;
+      const btn = document.getElementById('btn-reticle');
+      if (btn) {
+        if (showReticle) {
+          btn.classList.add('btn-primary');
+          btn.classList.remove('btn-neutral');
+        } else {
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-neutral');
+        }
+      }
+      drawSky();
+    }
+
+    function toggleNightVisionMode() {
+      isNightVision = !isNightVision;
+      document.body.classList.toggle('night-vision-mode', isNightVision);
+      const btn = document.getElementById('night-vision-btn');
+      if (btn) {
+        if (isNightVision) {
+          btn.classList.add('bg-red-700', 'text-white');
+        } else {
+          btn.classList.remove('bg-red-700', 'text-white');
+        }
+      }
+      drawSky();
+    }
+
+    // Focus Camera on Target Celestial Object
+    function focusCelestialTarget(targetId) {
+      const obj = celestialCatalog[targetId];
+      if (!obj) return;
+
+      const coord = raDecToAltAz(obj.ra, obj.dec, observationDate, currentLat, currentLon);
+      
+      // Auto-switch to optimal horizon direction
+      let optimalDir = 'S';
+      if (coord.az >= 45 && coord.az < 135) optimalDir = 'E';
+      else if (coord.az >= 135 && coord.az < 225) optimalDir = 'S';
+      else if (coord.az >= 225 && coord.az < 315) optimalDir = 'W';
+      else optimalDir = 'N';
+
+      setViewDirection(optimalDir);
+      zoomLevel = 1.8;
+      directionalAltOffset = Math.max(-20, Math.min(50, coord.alt - 35));
+      drawSky();
+
+      // Open Modal
+      if (targetId === 'moon') {
+        openMoonDetailModal();
+      } else {
+        openCelestialModal(targetId);
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Date & Time Controls & Dynamic Cards Logic
+    // ---------------------------------------------------------------------------
+    function updateDateInputUI() {
+      const input = document.getElementById('obs-time-input');
+      if (!input) return;
+      const year = observationDate.getFullYear();
+      const month = String(observationDate.getMonth() + 1).padStart(2, '0');
+      const day = String(observationDate.getDate()).padStart(2, '0');
+      const hours = String(observationDate.getHours()).padStart(2, '0');
+      const minutes = String(observationDate.getMinutes()).padStart(2, '0');
+      input.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+      updateDynamicSummaryAndCards();
+      drawSky();
+    }
+
+    function applyManualDateTime() {
+      const input = document.getElementById('obs-time-input');
+      if (input && input.value) {
+        observationDate = new Date(input.value);
+        updateDateInputUI();
+      }
+    }
+
+    function stepTime(minutes) {
+      observationDate = new Date(observationDate.getTime() + minutes * 60000);
+      updateDateInputUI();
+    }
+
+    function setToNowTime() {
+      observationDate = new Date();
+      updateDateInputUI();
+    }
+
+    function toggleTimeFlow() {
+      isTimeFlowRunning = !isTimeFlowRunning;
+      const btn = document.getElementById('btn-play-flow');
+      const lbl = document.getElementById('play-flow-label');
+
+      if (isTimeFlowRunning) {
+        if (lbl) lbl.textContent = "일시정지";
+        if (btn) {
+          btn.classList.add('btn-error');
+          btn.classList.remove('btn-outline');
+        }
+        timeFlowTimer = setInterval(() => {
+          stepTime(5); // Advance 5 minutes per tick
+        }, 120);
+      } else {
+        if (lbl) lbl.textContent = "시간 흐름";
+        if (btn) {
+          btn.classList.remove('btn-error');
+          btn.classList.add('btn-outline');
+        }
+        if (timeFlowTimer) clearInterval(timeFlowTimer);
+      }
+    }
+
+    // Geolocation handlers
+    function getUserGPSLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            currentLat = pos.coords.latitude;
+            currentLon = pos.coords.longitude;
+            locationName = `GPS 내 위치 (${currentLat.toFixed(2)}°N, ${currentLon.toFixed(2)}°E)`;
+            const disp = document.getElementById('loc-display');
+            if (disp) disp.textContent = `관측지: ${locationName}`;
+            drawSky();
+          },
+          () => {
+            // Keep default location on error
+          }
+        );
+      }
+    }
+
+    function changeQuickLocation(val) {
+      const coords = {
+        geumsan: { lat: 36.1077, lon: 127.4878, name: "충남 금산군 (별빛 축제장)" },
+        seoul: { lat: 37.5665, lon: 126.9780, name: "서울특별시" },
+        daejeon: { lat: 36.3504, lon: 127.3845, name: "대전광역시" },
+        busan: { lat: 35.1796, lon: 129.0756, name: "부산광역시" },
+        jeju: { lat: 33.2541, lon: 126.5601, name: "제주도 서귀포" }
+      };
+      if (coords[val]) {
+        currentLat = coords[val].lat;
+        currentLon = coords[val].lon;
+        locationName = coords[val].name;
+        const disp = document.getElementById('loc-display');
+        if (disp) disp.textContent = `관측지: ${locationName}`;
+        drawSky();
+      }
+    }
+
+    function updateDynamicSummaryAndCards() {
+      const month = observationDate.getMonth() + 1; // 1 ~ 12
+      const dateStr = `${observationDate.getFullYear()}년 ${month}월 ${observationDate.getDate()}일 ${observationDate.getHours()}시`;
+
+      const title = document.getElementById('summary-section-title');
+      const badge = document.getElementById('summary-season-badge');
+      const dateLabel = document.getElementById('summary-date-label');
+      if (title) title.textContent = `${dateStr} 밤하늘 관측 요약 안내`;
+      if (dateLabel) dateLabel.textContent = `관측지: ${locationName} 기준 실시간 남쪽(남중) & 동쪽(상승) 우선 추천`;
+
+      const eDesc = document.getElementById('sum-east-desc');
+      const sDesc = document.getElementById('sum-south-desc');
+      const wDesc = document.getElementById('sum-west-desc');
+      const nDesc = document.getElementById('sum-north-desc');
+
+      // Card Element references
+      const c1Img = document.getElementById('card1-img');
+      const c1Badge = document.getElementById('card1-badge');
+      const c1Title = document.getElementById('card1-title');
+      const c1Desc = document.getElementById('card1-desc');
+      const c1Btn = document.getElementById('card1-btn');
+      const c1BtnText = document.getElementById('card1-btn-text');
+
+      const c2Img = document.getElementById('card2-img');
+      const c2Badge = document.getElementById('card2-badge');
+      const c2Title = document.getElementById('card2-title');
+      const c2Desc = document.getElementById('card2-desc');
+      const c2Btn = document.getElementById('card2-btn');
+      const c2BtnText = document.getElementById('card2-btn-text');
+
+      const c3Img = document.getElementById('card3-img');
+      const c3Badge = document.getElementById('card3-badge');
+      const c3Title = document.getElementById('card3-title');
+      const c3Desc = document.getElementById('card3-desc');
+      const c3Btn = document.getElementById('card3-btn');
+      const c3BtnText = document.getElementById('card3-btn-text');
+
+      // Determine Season & Adapt Highlights with South and East Priority
+      if (month >= 3 && month <= 5) {
+        // Spring (봄)
+        if (badge) badge.textContent = "봄 밤하늘";
+        if (sDesc) sDesc.textContent = "봄철 남쪽 하늘 높은 곳을 사자자리(Leo)의 으뜸별 레굴루스와 사자자리 삼중 은하단(Leo Triplet), 달이 자오선을 통과하며 최고의 관측 고도를 형성합니다.";
+        if (eDesc) eDesc.textContent = "목동자리의 주황색 1등성 아크투루스와 헤라클레스 대구상성단(M13)의 30만 개 별 무리가 동쪽에서 힘차게 떠오릅니다.";
+        if (wDesc) wDesc.textContent = "겨울철 오리온자리와 쌍둥이자리의 카스토르·폴룩스가 서쪽 지평선 너머로 서서히 기울어집니다.";
+        if (nDesc) nDesc.textContent = "북두칠성(Ursa Major)이 머리 위 천정에 국자 모양을 뚜렷이 드러내며 북극성을 안내합니다.";
+
+        // Card 1: South Meridian Culmination - Leo Triplet (은하)
+        if (c1Img) c1Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Leo_Triplet_by_VST.jpg?width=600";
+        if (c1Badge) c1Badge.textContent = "남쪽 자오선 최고 고도 (은하단)";
+        if (c1Title) c1Title.textContent = "사자자리 삼중 은하 (Leo Triplet)";
+        if (c1Desc) c1Desc.textContent = "3,500만 광년 거리에서 서로의 중력으로 상호작용하는 3개의 나선은하입니다. 봄철 남쪽 하늘 자오선 최고 고도에서 3개의 은하가 한 시야에 들어오는 장관을 연출합니다.";
+        if (c1Btn) c1Btn.setAttribute('onclick', "focusCelestialTarget('leo_triplet')");
+        if (c1BtnText) c1BtnText.textContent = "사자자리 은하군 탐구";
+
+        // Card 2: South Zenith - The Moon (달 표면)
+        if (c2Img) c2Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/FullMoon2010.jpg";
+        if (c2Badge) c2Badge.textContent = "남쪽 고고도 천체 (달 표면)";
+        if (c2Title) c2Title.textContent = "달의 비의 바다와 충돌구 탐구";
+        if (c2Desc) c2Desc.textContent = "봄철 초저녁 남쪽 하늘 높이 솟아오른 달의 명암 경계선에서 거대한 아펜니노 산맥과 비의 바다, 플라토 크레이터의 입체 그림자를 관측해 보세요.";
+        if (c2Btn) c2Btn.setAttribute('onclick', "openMoonDetailModal()");
+        if (c2BtnText) c2BtnText.textContent = "달 표면 정밀 탐구관 열기";
+
+        // Card 3: East Rising - Hercules Globular Cluster M13 (성단)
+        if (c3Img) c3Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/M13_Hubble_remastered.jpg?width=600";
+        if (c3Badge) c3Badge.textContent = "동쪽에서 떠오르는 천체 (성단)";
+        if (c3Title) c3Title.textContent = "헤라클레스 대구상성단 (M13)";
+        if (c3Desc) c3Desc.textContent = "봄밤 동쪽 하늘에서 서서히 솟아오르는 북반구 최고의 구상성단으로, 120억 년의 나이를 가진 30만 개 이상의 고대 별들이 찬란한 다이아몬드 별가루를 선물합니다.";
+        if (c3Btn) c3Btn.setAttribute('onclick', "focusCelestialTarget('m13')");
+        if (c3BtnText) c3BtnText.textContent = "M13 구상성단 탐구";
+
+      } else if (month >= 6 && month <= 8) {
+        // Summer (여름)
+        if (badge) badge.textContent = "여름 밤하늘";
+        if (sDesc) sDesc.textContent = "붉은 초거성 안타레스가 빛나는 전갈자리와 궁수자리의 은하수 중심부, 토성의 신비로운 얼음 고리가 남쪽 자오선 최고 고도를 지납니다.";
+        if (eDesc) eDesc.textContent = "페가수스 사각형과 가을철 대표 안드로메다 은하(M31), 목성이 동쪽 지평선에서 서서히 고도를 높여옵니다.";
+        if (wDesc) wDesc.textContent = "봄철의 아크투루스와 처녀자리가 서쪽 하늘 붉은 노을빛 속으로 지평선에 다가섭니다.";
+        if (nDesc) nDesc.textContent = "용자리와 헤라클레스자리(M13 대구상성단)가 북극성을 중심으로 여름 밤하늘의 북천을 회전합니다.";
+
+        // Card 1: South Meridian Culmination - Saturn (행성)
+        if (c1Img) c1Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Saturn_during_Equinox.jpg?width=600";
+        if (c1Badge) c1Badge.textContent = "남쪽 자오선 남중 (행성 1순위)";
+        if (c1Title) c1Title.textContent = "토성의 얼음 고리와 위성 타이탄";
+        if (c1Desc) c1Desc.textContent = "여름밤 남쪽 자오선 가장 높은 곳을 지나며 대기 흔들림 없이 선명하게 관측됩니다. 카시니 간극과 주황빛 거대 위성 타이탄을 만나보세요.";
+        if (c1Btn) c1Btn.setAttribute('onclick', "focusCelestialTarget('saturn')");
+        if (c1BtnText) c1BtnText.textContent = "토성 고리 & 위성 탐구";
+
+        // Card 2: South Zenith - Ring Nebula M57 (성운)
+        if (c2Img) c2Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/M57_The_Ring_Nebula.jpg?width=600";
+        if (c2Badge) c2Badge.textContent = "남쪽/천정 최고도 (성운)";
+        if (c2Title) c2Title.textContent = "거문고자리 고리성운 (M57, Ring Nebula)";
+        if (c2Desc) c2Desc.textContent = "남쪽 하늘 높이 떠오른 여름철 대삼각형 베가 바로 아래에서 빛나는 영롱한 도넛 모양 행성상성운입니다. 중심의 백색왜성이 자외선으로 가스를 빛나게 합니다.";
+        if (c2Btn) c2Btn.setAttribute('onclick', "focusCelestialTarget('m57')");
+        if (c2BtnText) c2BtnText.textContent = "고리성운(M57) 정밀 탐구";
+
+        // Card 3: East Rising - Andromeda Galaxy M31 (은하)
+        if (c3Img) c3Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Andromeda_Galaxy_(with_h-alpha).jpg?width=600";
+        if (c3Badge) c3Badge.textContent = "동쪽에서 떠오르는 천체 (은하)";
+        if (c3Title) c3Title.textContent = "안드로메다 거대 나선은하 (M31)";
+        if (c3Desc) c3Desc.textContent = "여름밤 자정 무렵 동쪽 지평선에서 서서히 솟아오르는 250만 광년 거리의 거대 은하로, 우리은하보다 더 큰 1조 개의 별들을 품고 있습니다.";
+        if (c3Btn) c3Btn.setAttribute('onclick', "focusCelestialTarget('m31')");
+        if (c3BtnText) c3BtnText.textContent = "안드로메다 은하 탐구";
+
+      } else if (month >= 9 && month <= 11) {
+        // Autumn (가을)
+        if (badge) badge.textContent = "가을 밤하늘";
+        if (sDesc) sDesc.textContent = "물병자리 부근에서 영롱하게 빛나는 토성의 고리와 달의 바다/크레이터 지형이 남쪽 자오선 최고 고도에 도달하여 가장 선명하게 관측됩니다.";
+        if (eDesc) eDesc.textContent = "황소자리의 보석 플레이아데스 산개성단(M45)과 태양계의 왕 목성이 갈릴레이 위성들과 함께 동쪽 지평선 위로 서서히 솟아오릅니다.";
+        if (wDesc) wDesc.textContent = "여름철 대삼각형의 주역인 백조자리 데네브, 거문고자리 베가, 독수리자리 알타이르가 서쪽 지평선으로 집니다.";
+        if (nDesc) nDesc.textContent = "W자 모양의 카시오페이아자리와 안드로메다 은하(M31)가 높이 떠올라 가을 북쪽 하늘의 기준이 됩니다.";
+
+        // Card 1: South Meridian Culmination - Saturn Rings (행성)
+        if (c1Img) c1Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Saturn_during_Equinox.jpg?width=600";
+        if (c1Badge) c1Badge.textContent = "남쪽 자오선 최고 고도 (행성 1순위)";
+        if (c1Title) c1Title.textContent = "토성의 신비한 얼음 고리와 15년 주기";
+        if (c1Desc) c1Desc.textContent = "가을밤 남쪽 자오선 가장 높은 곳에 위치하여 흔들림 없이 선명합니다! 99% 순수 얼음 고리와 15년 주기 고리 소실 현상을 관측해 보세요.";
+        if (c1Btn) c1Btn.setAttribute('onclick', "focusCelestialTarget('saturn')");
+        if (c1BtnText) c1BtnText.textContent = "토성 고리 & 위성 탐구";
+
+        // Card 2: South Zenith - Moon Exploration (달 지형)
+        if (c2Img) c2Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/FullMoon2010.jpg";
+        if (c2Badge) c2Badge.textContent = "남쪽 하늘 최고 고도 (달 지형)";
+        if (c2Title) c2Title.textContent = "신비한 달의 바다와 충돌구 탐구";
+        if (c2Desc) c2Desc.textContent = "남쪽 하늘을 영롱하게 수놓는 달! 어두운 현무암 용암 바다와 밝고 험준한 사장석 고지대, 아펜니노 산맥의 그림자를 만나보세요.";
+        if (c2Btn) c2Btn.setAttribute('onclick', "openMoonDetailModal()");
+        if (c2BtnText) c2BtnText.textContent = "달 표면 정밀 탐구관 열기";
+
+        // Card 3: East Rising - King Jupiter & Galilean Moons (행성/위성)
+        if (c3Img) c3Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Jupiter_and_its_shrunken_Great_Red_Spot.jpg?width=600";
+        if (c3Badge) c3Badge.textContent = "동쪽에서 떠오르는 천체 (행성의 왕)";
+        if (c3Title) c3Title.textContent = "목성의 거대한 대적점과 갈릴레이 4대 위성";
+        if (c3Desc) c3Desc.textContent = "가을 초저녁 동쪽 지평선 위로 눈부시게 떠오르는 태양계의 왕 목성! 지구가 들어가는 대적점과 나란히 줄지어 도는 이오, 유로파, 가니메데, 칼리스토를 만나보세요.";
+        if (c3Btn) c3Btn.setAttribute('onclick', "focusCelestialTarget('jupiter')");
+        if (c3BtnText) c3BtnText.textContent = "목성 줄무늬 & 위성 탐구";
+
+      } else {
+        // Winter (겨울)
+        if (badge) badge.textContent = "겨울 밤하늘";
+        if (sDesc) sDesc.textContent = "오리온 대성운(M42), 밤하늘 최고의 밝은 별 시리우스(Sirius), 목성이 남쪽 자오선 최고 고도에 도달하여 황홀한 겨울철 대육각형을 완성합니다.";
+        if (eDesc) eDesc.textContent = "봄의 전령사인 사자자리의 1등성 레굴루스와 사자자리 삼중은하단(Leo Triplet)이 동쪽 지평선 위로 모습을 드러냅니다.";
+        if (wDesc) wDesc.textContent = "가을철 페가수스 사각형과 안드로메다 은하가 서쪽 하늘 지평선 아래로 내려앉습니다.";
+        if (nDesc) nDesc.textContent = "카시오페이아와 북두칠성이 북극성을 사이에 두고 시계 반대 방향으로 웅장하게 대칭을 이룹니다.";
+
+        // Card 1: South Meridian Culmination - Orion Nebula M42 (성운)
+        if (c1Img) c1Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Orion_Nebula_-_Hubble_2006_mosaic_18000.jpg?width=600";
+        if (c1Badge) c1Badge.textContent = "남쪽 자오선 최고 고도 (성운 1순위)";
+        if (c1Title) c1Title.textContent = "오리온 대성운 (M42, 별들의 요람)";
+        if (c1Desc) c1Desc.textContent = "겨울밤 남쪽 자오선 가장 높은 곳에 걸리는 거대한 발광 성운입니다. 성운 중심에서 강력한 자외선을 내뿜는 4개의 청색 거성 '트라페지움'을 관측해 보세요.";
+        if (c1Btn) c1Btn.setAttribute('onclick', "focusCelestialTarget('m42')");
+        if (c1BtnText) c1BtnText.textContent = "오리온 대성운 탐구";
+
+        // Card 2: South High Altitude - Jupiter & Pleiades (행성/성단)
+        if (c2Img) c2Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Pleiades_large.jpg?width=600";
+        if (c2Badge) c2Badge.textContent = "남쪽 천정 최고 고도 (성단)";
+        if (c2Title) c2Title.textContent = "플레이아데스 산개성단 (M45, 좀생이별)";
+        if (c2Desc) c2Desc.textContent = "겨울철 머리 위 천정에 높이 떠올라 맨눈으로도 6~7개의 푸른 별이 보이며, 망원경 시야 가득 눈부신 다이아몬드 별가루 장관을 선사합니다.";
+        if (c2Btn) c2Btn.setAttribute('onclick', "focusCelestialTarget('m45')");
+        if (c2BtnText) c2BtnText.textContent = "플레이아데스 성단 탐구";
+
+        // Card 3: East Rising - Leo Triplet (은하단)
+        if (c3Img) c3Img.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Leo_Triplet_by_VST.jpg?width=600";
+        if (c3Badge) c3Badge.textContent = "동쪽에서 떠오르는 천체 (은하단)";
+        if (c3Title) c3Title.textContent = "사자자리 삼중 은하 (Leo Triplet)";
+        if (c3Desc) c3Desc.textContent = "겨울밤 늦은 시간 동쪽 지평선에서 서서히 떠오르는 3,500만 광년 거리의 나선은하 3총사로, 봄의 전령을 알리는 대표 딥스카이입니다.";
+        if (c3Btn) c3Btn.setAttribute('onclick', "focusCelestialTarget('leo_triplet')");
+        if (c3BtnText) c3BtnText.textContent = "사자자리 은하군 탐구";
+      }
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Moon Selenography Detail Modal Logic
+    // ---------------------------------------------------------------------------
+    const moonFeatures = {
+      imbrium: {
+        title: "비의 바다 (Mare Imbrium)",
+        badge: "지름 1,145 km (달 제2의 바다)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Mare_Imbrium_(LRO).png",
+        imgTag: "NASA LRO 탐사선 촬영 광각 모자이크",
+        desc: "약 39억 년 전 거대한 소행성이 충돌하여 형성된 거대한 다중 충돌 분지입니다. 충돌 후 수억 년에 걸쳐 달 내부 마그마가 분출하여 검은 현무암 용암으로 가득 채워져 매끄러운 평원이 되었습니다. 아펜니노 산맥이 바다의 남동쪽 테두리를 둘러싸고 있어 소구경 망원경으로도 극적인 명암 그림자를 볼 수 있습니다.",
+        telescope: "상현달 직후(월령 7~9일) 명암 경계선이 비의 바다를 가로지를 때 산맥의 긴 그림자와 플라토(Plato) 크레이터의 칠흑 같은 바닥을 감상해 보세요!"
+      },
+      tranquillity: {
+        title: "고요의 바다 (Mare Tranquillitatis)",
+        badge: "인류 최초 달 착륙지 (아폴로 11호)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Mare_Tranquillitatis_(LRO).png",
+        imgTag: "NASA LRO 탐사선 고해상도 지형 관측",
+        desc: "1969년 7월 20일 아폴로 11호의 달 착륙선 '이글호'가 착륙하여 닐 암스트롱이 인류 최초로 발자국을 남긴 역사적인 장소입니다. 이 지역 현무암은 티타늄 함량이 매우 높아 다른 바다보다 푸르스름한 어두운 색조를 띱니다.",
+        telescope: "반달(상현) 시기에 가장 보기 좋으며, 주변에 돌출된 산맥이 적어 비교적 평탄하지만 망원경으로 보면 미세한 용암 능선(Wrinkle Ridge)들이 입체적으로 드러납니다."
+      },
+      procellarum: {
+        title: "폭풍의 대양 (Oceanus Procellarum)",
+        badge: "지름 2,500 km (달 최대 현무암 평원)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Oceanus_Procellarum_(LRO).png",
+        imgTag: "NASA LRO 달 표면 정밀 탐사선 촬영",
+        desc: "달 앞면 서쪽의 거대한 면적을 차지하는 가장 광활한 현무암 평원으로, 크기가 너무 거대하여 유일하게 '바다' 대신 '대양(Oceanus)'이라는 이름이 붙여졌습니다. 과거 방사성 원소(KREEP)가 풍부하여 화산 활동이 오랫동안 지속된 지역입니다.",
+        telescope: "보름달 직전(월령 12~14일) 서쪽 하늘에 장엄하게 펼쳐지며 아리스타르코스(Aristarchus) 크레이터의 눈부신 반사광을 관측할 수 있습니다."
+      },
+      tycho: {
+        title: "티코 충돌구 (Tycho Crater)",
+        badge: "지름 85 km (찬란한 광조의 제왕)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Tycho_Crater.jpg",
+        imgTag: "고해상도 천체망원경 관측 사진",
+        desc: "약 1억 800만 년 전(공룡 시대) 형성된 매우 젊은 충돌구입니다. 충돌 시 튕겨 나간 파편들이 달 표면 1,500km 이상 사방으로 뻗어나가 햇살 같은 백색 광조(Ray System)를 만들었습니다.",
+        telescope: "보름달일 때 가장 찬란하게 빛납니다. 소형 쌍안경으로도 달 남쪽에서 뻗어나오는 수십 줄기의 찬란한 광조선을 쉽게 찾을 수 있습니다."
+      },
+      copernicus: {
+        title: "코페르니쿠스 충돌구 (Copernicus Crater)",
+        badge: "지름 93 km (달의 전형적인 복합 충돌구)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Copernicus_(LRO).png",
+        imgTag: "NASA LRO 궤도선 정밀 촬영",
+        desc: "비의 바다 남쪽에 위치한 전형적인 테라스 구조의 크레이터입니다. 깊이가 무려 3.8km에 달하며, 충돌 충격으로 바닥 중앙에서 솟아오른 3개의 중앙구(Central Peaks)가 우뚝 솟아 있습니다.",
+        telescope: "상현달 무렵 명암 경계선에 걸칠 때 3.8km 절벽의 계단식 테라스와 중앙구 봉우리가 만드는 칠흑 같은 그림자가 경이로운 장관을 연출합니다."
+      },
+      crisium: {
+        title: "위난의 바다 (Mare Crisium)",
+        badge: "지름 555 km (고립형 원형 분지)",
+        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Mare_Crisium_(LRO).png",
+        imgTag: "NASA LRO 달 표면 정밀 탐사 모자이크",
+        desc: "달의 동쪽 가장자리에 홀로 또렷하게 떨어져 있는 직경 약 555km의 둥근 분지입니다. 초승달이 뜰 때 가장 먼저 모습을 드러내며, 소련의 무인 탐사선 루나 15호와 24호(토양 샘플 귀환)의 착륙지입니다.",
+        telescope: "초승달이나 그믐달 시기, 가느다란 달빛 속에서 가장 먼저 검은 타원형으로 떠올라 소형 망원경 시야를 사로잡습니다."
+      }
+    };
+
+    function onMoonImgError(imgEl) {
+      if (!imgEl.dataset.fallbackTried) {
+        imgEl.dataset.fallbackTried = "true";
+        imgEl.src = "https://commons.wikimedia.org/wiki/Special:FilePath/FullMoon2010.jpg";
+      } else {
+        imgEl.src = "https://placehold.co/600x350/0f172a/f8fafc?text=NASA+LRO+Moon+Image";
+      }
+    }
+
+    function showMoonFeature(featKey) {
+      const feat = moonFeatures[featKey];
+      if (!feat) return;
+
+      const titleEl = document.getElementById('moon-feat-title');
+      const badgeEl = document.getElementById('moon-feat-badge');
+      const imgEl = document.getElementById('moon-feat-img');
+      const tagEl = document.getElementById('moon-feat-tag');
+      const descEl = document.getElementById('moon-feat-desc');
+      const telEl = document.getElementById('moon-feat-telescope');
+
+      if (titleEl) titleEl.textContent = feat.title;
+      if (badgeEl) badgeEl.textContent = feat.badge;
+      if (imgEl) {
+        imgEl.dataset.fallbackTried = "";
+        imgEl.src = feat.img;
+        imgEl.alt = feat.title;
+      }
+      if (tagEl) tagEl.textContent = feat.imgTag;
+      if (descEl) descEl.textContent = feat.desc;
+      if (telEl) telEl.innerHTML = `🔭 <strong>망원경 관측 포인트:</strong> ${feat.telescope}`;
+    }
+
+    function openMoonDetailModal() {
+      showMoonFeature('imbrium');
+      const modal = document.getElementById('moon_modal');
+      if (modal) modal.showModal();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Celestial Object Modal (Planets, Deep-sky)
+    // ---------------------------------------------------------------------------
+    function openCelestialModal(objId) {
+      const obj = celestialCatalog[objId];
+      if (!obj) return;
+
+      const nameEl = document.getElementById('obj-modal-name');
+      const typeEl = document.getElementById('obj-modal-type');
+      const imgEl = document.getElementById('obj-modal-img');
+      const tagEl = document.getElementById('obj-modal-img-tag');
+      const diamEl = document.getElementById('obj-stat-diameter');
+      const distEl = document.getElementById('obj-stat-distance');
+      const rotEl = document.getElementById('obj-stat-rotation');
+      const orbEl = document.getElementById('obj-stat-orbit');
+      const deepTitle = document.getElementById('obj-deep-title');
+      const deepContent = document.getElementById('obj-deep-content');
+      const moonsCount = document.getElementById('obj-moons-count');
+      const moonsList = document.getElementById('obj-moons-list');
+
+      if (nameEl) nameEl.textContent = obj.name;
+      if (typeEl) typeEl.textContent = obj.type;
+      if (imgEl) imgEl.src = obj.img;
+      if (tagEl) tagEl.textContent = obj.imgTag;
+      if (diamEl) diamEl.textContent = obj.diameter;
+      if (distEl) distEl.textContent = obj.distance;
+      if (rotEl) rotEl.textContent = obj.rotation;
+      if (orbEl) orbEl.textContent = obj.orbit;
+      if (deepTitle) deepTitle.innerHTML = `<i data-lucide="book-open" class="w-4 h-4 text-primary"></i> ${obj.name} 과학 심층 해설`;
+      if (deepContent) deepContent.innerHTML = obj.desc;
+      if (moonsCount) moonsCount.textContent = obj.moonsCount;
+
+      // Populate Moons List
+      if (moonsList) {
+        moonsList.innerHTML = '';
+        if (obj.moons && obj.moons.length > 0) {
+          obj.moons.forEach(m => {
+            const div = document.createElement('div');
+            div.className = "p-3 rounded-2xl bg-base-100 border border-indigo-100 shadow-sm flex flex-col justify-between space-y-2";
+            div.innerHTML = `
+              <div class="h-28 rounded-xl overflow-hidden bg-slate-950 border border-slate-700 flex items-center justify-center p-1">
+                <img src="${m.img}" alt="${m.name}" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/300x160/1e1b4b/f8fafc?text=Moon+Photo';">
+              </div>
+              <div>
+                <h6 class="font-bold text-slate-900 text-xs">${m.name}</h6>
+                <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">${m.desc}</p>
+              </div>
+            `;
+            moonsList.appendChild(div);
+          });
+        }
+      }
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+      const modal = document.getElementById('object_modal');
+      if (modal) modal.showModal();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Telescope Magnification & Optics Calculator
+    // ---------------------------------------------------------------------------
+    function calculateOptics() {
+      const dInput = document.getElementById('calc-aperture');
+      const fInput = document.getElementById('calc-focal');
+      const epInput = document.getElementById('calc-eyepiece');
+      const barlowInput = document.getElementById('calc-barlow');
+
+      if (!dInput || !fInput || !epInput || !barlowInput) return;
+
+      const D = parseFloat(dInput.value) || 100;
+      const F = parseFloat(fInput.value) || 1000;
+      const f = parseFloat(epInput.value) || 10;
+      const barlow = parseFloat(barlowInput.value) || 1.0;
+
+      // Formulas
+      const effectiveF = F * barlow;
+      const magnification = Math.round((effectiveF / f) * 10) / 10;
+      const fRatio = Math.round((F / D) * 10) / 10;
+      const maxUsefulPower = Math.round(D * 2.0);
+      const lightGathering = Math.round(Math.pow(D / 7.0, 2));
+
+      // DOM Updates
+      const powerEl = document.getElementById('res-power');
+      const formulaEl = document.getElementById('res-power-formula');
+      const fratioEl = document.getElementById('res-fratio');
+      const maxUsefulEl = document.getElementById('res-max-useful');
+      const lightEl = document.getElementById('res-light-gather');
+
+      if (powerEl) powerEl.textContent = `${magnification}x`;
+      if (formulaEl) formulaEl.textContent = `(${F}mm × ${barlow}x) ÷ ${f}mm`;
+      if (fratioEl) fratioEl.textContent = `F/${fRatio}`;
+      if (maxUsefulEl) maxUsefulEl.textContent = `${maxUsefulPower}x`;
+      if (lightEl) lightEl.textContent = `${lightGathering.toLocaleString()}배`;
+
+      // Suitability Feedback
+      const evalBadge = document.getElementById('res-eval-badge');
+      const evalDesc = document.getElementById('res-eval-desc');
+      const evalIcon = document.getElementById('res-eval-icon');
+
+      if (magnification > maxUsefulPower) {
+        if (evalBadge) {
+          evalBadge.textContent = "과배율 경고 (Over-Magnification)";
+          evalBadge.className = "badge badge-sm badge-error text-white font-bold";
+        }
+        if (evalDesc) evalDesc.textContent = `현재 배율(${magnification}x)이 망원경 구경의 광학 한계(${maxUsefulPower}x)를 초과했습니다. 상이 어둡고 흐릿해질 수 있으므로 더 긴 초점거리 접안렌즈를 사용하세요.`;
+        if (evalIcon) evalIcon.textContent = "⚠️";
+      } else if (magnification >= 120) {
+        if (evalBadge) {
+          evalBadge.textContent = "행성 · 달 고배율 특화";
+          evalBadge.className = "badge badge-sm badge-primary font-bold";
+        }
+        if (evalDesc) evalDesc.textContent = `토성의 카시니 간극, 목성의 줄무늬와 대적점, 달의 충돌구 세부 지형을 꽉 차게 감상하기에 가장 이상적인 배율입니다.`;
+        if (evalIcon) evalIcon.textContent = "🪐";
+      } else if (magnification >= 40) {
+        if (evalBadge) {
+          evalBadge.textContent = "중배율 만능 관측 모드";
+          evalBadge.className = "badge badge-sm badge-accent text-slate-900 font-bold";
+        }
+        if (evalDesc) evalDesc.textContent = `달 전체 전경, 이중성 분리, 헤라클레스 구상성단(M13)과 밝은 성운을 보기에 가장 안정적이고 쾌적한 배율입니다.`;
+        if (evalIcon) evalIcon.textContent = "🌕";
+      } else {
+        if (evalBadge) {
+          evalBadge.textContent = "광시야 딥스카이 모드";
+          evalBadge.className = "badge badge-sm badge-info text-white font-bold";
+        }
+        if (evalDesc) evalDesc.textContent = `시야가 넓고 밝아 안드로메다 은하(M31), 플레이아데스 성단(M45), 오리온 대성운의 전체적인 가스 윤곽을 감상하기에 최적입니다.`;
+        if (evalIcon) evalIcon.textContent = "🌌";
+      }
+    }
+
+    function setCalcPreset(d, F, f, barlow) {
+      const dInput = document.getElementById('calc-aperture');
+      const fInput = document.getElementById('calc-focal');
+      const epInput = document.getElementById('calc-eyepiece');
+      const barlowInput = document.getElementById('calc-barlow');
+
+      if (dInput) dInput.value = d;
+      if (fInput) fInput.value = F;
+      if (epInput) epInput.value = f;
+      if (barlowInput) barlowInput.value = barlow;
+
+      calculateOptics();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Window Load Initialization
+    // ---------------------------------------------------------------------------
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+      updateDateInputUI();
+      calculateOptics();
+      resizeCanvas();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+</body>
+</html>
